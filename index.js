@@ -32,6 +32,10 @@ require('./api')(app);
 
 var server = require('http').createServer(app);
 
+var io    = require( "socket.io" )();
+require('./shooty-balls/shooty-balls-app.js')(app, io);
+io.attach(server);
+
 //TLS
 /*const options = {
     key: fs.readFileSync(__dirname + '/tls/server.key'),

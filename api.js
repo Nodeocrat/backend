@@ -224,4 +224,9 @@ module.exports = function(app) {
     res.render('blog');
   });
 
+  app.get('/blog/apalg', (req, res)=>{
+    res.render('auslander-parter');
+  });
+
+
 };
