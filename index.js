@@ -5,7 +5,7 @@ const path = require('path');
 const helmet = require('helmet');
 const MongoStore = require('connect-mongo')(session);
 
-const port = 3000;
+const port = 8080;
 const mongoUrl = 'mongodb://localhost:27017/test';
 
 mongoose.connect(mongoUrl);
