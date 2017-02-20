@@ -4,7 +4,8 @@
   "description": "Convenience template",
   "main": "index.js",
   "scripts": {
-    "test": "mocha tests"
+    "test": "mocha tests",
+    "start-dev": "NODE_ENV=production nodejs ./index.js"
   },
   "dependencies": {
     "bcrypt": "^0.8.7",

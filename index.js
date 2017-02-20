@@ -69,6 +69,10 @@ server.listen(port, (err) => {
     process.exit(1);
   } else {
     console.log('Listening on port: ' + port + ' (http)');
+    if(process.env.NODE_ENV !== "production")
+      console.log("Running in development mode");
+    else
+      console.log("Running in production mode");
   }
 });
 
