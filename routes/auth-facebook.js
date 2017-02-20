@@ -15,7 +15,7 @@ module.exports = function(){
     {
       clientID: Config.facebookClientId,
       clientSecret: Config.facebookClientSecret,
-      callbackURL: 'https://localhost/auth/facebook/callback',
+      callbackURL: 'https://www.nodeocrat.com/auth/facebook/callback',
       // Necessary for new version of Facebook graph API
       profileFields: ['id', 'emails', 'name']
     },
