@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const constants = require('../constants');
 const sites = require('../config.js').OAUTH_SITES;
 
-const defaultPic = 'http://www.freelanceme.net/Images/default%20profile%20picture.png';
+const defaultPic = 'https://www.freelanceme.net/Images/default%20profile%20picture.png';
 
 const UserSchema = new mongoose.Schema({
   username: {
