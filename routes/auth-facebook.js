@@ -58,7 +58,7 @@ module.exports = function(){
       if (!user) {
         req.flash("facebookName", profile.name.givenName + " " + profile.name.familyName);
         req.flash("email", profile.emails[0].value);
-        req.flash("facebookPhotoUrl", 'http://graph.facebook.com/' +
+        req.flash("facebookPhotoUrl", 'https://graph.facebook.com/' +
           profile.id.toString() + '/picture?type=normal');
         req.flash("facebookId", profile.id);
 

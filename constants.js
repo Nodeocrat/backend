@@ -24,7 +24,7 @@ module.exports = {
   social: {
     FACEBOOK_PROFILE_PIC: (user, size)=>{
       const sizeStr = size ? size : "normal";
-      return "http://graph.facebook.com/" + user.oauth.facebook.id.toString() +
+      return "https://graph.facebook.com/" + user.oauth.facebook.id.toString() +
         "/picture?type=" + sizeStr;
     }
   }
