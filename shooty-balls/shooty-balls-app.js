@@ -77,7 +77,7 @@ module.exports = function(app, io){
 			if((!collisionTable[causeEntity.type].hasOwnProperty(entity.type)) || entitiesToSkipCheck.hasOwnProperty(entityProperty))
 				continue;
 
-	    console.log("[CheckForCollision]: " + JSON.stringify(entity, null, 4));
+	    //console.log("[CheckForCollision]: " + JSON.stringify(entity, null, 4));
 			updateEntity(entityProperty);
 			testForCollision(causeEntityKey, causeEntity, entityProperty, entity);
 		}
