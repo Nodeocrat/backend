@@ -42,8 +42,9 @@
 <p>The collision engine was the main hurdle. First it calculates if a collision will occur in the first place, and if so, how long from now, but only provided the colliding objects remain on course. If any of the objects change size or direction then the 'not yet activated' collision event is cancelled. In theory, this should substantially reduce server load due to only needing to update objects, calculate collisions and send messages to each player as and when events occur, rather than 20-30 times per second as is usually the case with game loops.</p>
 
 <p>It works best with slower paced games with not too many players/NPCs where events will (on avg.) occur less than 20 times per second. If there are more than ~25 events occuring per second then it may start to perform worse than the traditional method. For now, I have only made it to work between circular objects. Objects of other shapes (maybe except ellipses) will likely require a completely different algorithm. Modifying the current algorithm to work with ellipses and an algorithm to work with any polygon (with all angles &lt;180 degrees) should be able to cover all cases.</p>
-
-
+P.S. I didn't spend much time thinking of a name for it...
+<br>
+<br>
 <b>Summary of algorithm: </b>
 <p>When an event occurs (player shoot, player move, player resize), this triggers the update of every game object and the search for possible collisions. Updating game objects is trivial; just multiply its speed in the y and x directions by the difference in time since it was last updated:
   <code><br>var updateEntity = function(entityKey){<br>
