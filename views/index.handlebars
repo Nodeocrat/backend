@@ -1,9 +1,7 @@
 <html>
   <head>
     <base href="/">
-    <title>Angular 2 QuickStart</title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- 1. Load libraries -->
      <!-- Polyfill(s) for older browsers -->
     <!--script src="node_modules/core-js/client/shim.min.js"></script>
@@ -16,8 +14,35 @@
       System.import('app').catch(function(err){ console.error(err); });
     </script-->
   </head>
+  <style>
+    .ext-logo-homepage {
+      margin-top: 40px;
+      margin-bottom: 40px;
+    }
+  </style>
   <body>
-    [Intro]
+
+    <div class="row">
+      <div class="col-md-3 well" style="background-color: #eeeeee;">
+        <div class="center-outer"><div class="center-inner">
+          <img class="ext-logo-homepage" height="123" width="200" src="/static/images/external-logos/node-logo.png"></img>
+        </div></div>
+        <div class="center-outer"><div class="center-inner">
+          <img class="ext-logo-homepage" height="118" width="100" src="/static/images/external-logos/linux-logo.png"></img>
+        </div></div>
+        <div class="center-outer"><div class="center-inner">
+          <img class="ext-logo-homepage" height="75" width="200" src="/static/images/external-logos/aws-logo.png"></img>
+        </div></div>
+        <div class="center-outer"><div class="center-inner">
+          <img class="ext-logo-homepage" height="60" width="220" style="margin-top: 80px;" src="/static/images/external-logos/mongodb-logo.png"></img>
+        </div></div>
+      </div>
+      <div class="col-md-9">
+        <div class="well" style="height: 100%; background-color: #eeeeee;">
+          <p>This page is currently being updated.</p>
+        </div>
+      </div>
+    </div>
 
   </body>
 </html>
