@@ -14,8 +14,44 @@
       System.import('app').catch(function(err){ console.error(err); });
     </script-->
   </head>
-  <body>
-    [Intro]
+  <style>
+    .ext-logo-homepage {
+      margin-top: 40px;
+      margin-bottom: 40px;
+    }
 
+    .panel-text {
+      font-family: Source Sans Pro,Helvetica,Arial,sans-serif,Hiragino Kaku Gothic Pro,Meiryo,Hiragino Sans GB W3,Droid Sans Fallback,-apple-system,'.SFNSDisplay-Regular';
+      line-height: 20px;
+      color: rgba(0,0,0,.7);
+      font-size: 15px;
+    }
+  </style>
+  <body>
+
+    <div class="row">
+      <div class="col-md-3 well" style="background-color: #eeeeee;">
+        <div class="center-outer"><div class="center-inner">
+          <img class="ext-logo-homepage" height="123" width="200" src="/static/images/external-logos/node-logo.png"></img>
+        </div></div>
+        <div class="center-outer"><div class="center-inner">
+          <img class="ext-logo-homepage" height="118" width="100" src="/static/images/external-logos/linux-logo.png"></img>
+        </div></div>
+        <div class="center-outer"><div class="center-inner">
+          <img class="ext-logo-homepage" height="75" width="200" src="/static/images/external-logos/aws-logo.png"></img>
+        </div></div>
+        <div class="center-outer"><div class="center-inner">
+          <img class="ext-logo-homepage" height="60" width="220" style="margin-top: 80px;" src="/static/images/external-logos/mongodb-logo.png"></img>
+        </div></div>
+      </div>
+      <div class="col-md-9">
+        <div class="panel panel-default">
+            <div class="panel-body panel-text">
+              <p>Text.</p>
+            </div>
+        </div>
+
+      </div>
+    </div>
   </body>
 </html>
