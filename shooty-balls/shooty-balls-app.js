@@ -1,23 +1,9 @@
 'use strict';
 
 module.exports = function(app, io){
-	var EventEmitter = require('events');
-	var fs = require('fs');
-
-	/*var express = require('express');
-	var app = express();
-	var http = require('http').Server(app);
-	app.use(express.static(__dirname + '/client'));
-
-	app.get('/', function(req, res){
-		res.sendFile(__dirname + '/index.html');
-	});*/
 
 	var playerObj = require('./EntityModel/Player');
 	var Bullet = require('./EntityModel/Bullet');
-
-
-	// ************* COLLISION DETECTION ***********
 
 	// Collision table: Literally just a mapping of entity type to a set of entity types which it can collide with
 	var collisionTable = { player: { bullet: null },
@@ -52,8 +38,10 @@ module.exports = function(app, io){
 				causeEntity.player.radius++;
 				destEntity.radius--;
 			}
+			cancelCollisions(causeEntityKey);
 			delete entities[causeEntityKey];
 			delete entityTypes.bullet[causeEntityKey];
+			delete playerInfo[causeEntityKey];
 		}
 		else // causeEntity is the 'victim'
 		{
@@ -62,8 +50,10 @@ module.exports = function(app, io){
 				causeEntity.radius--;
 				destEntity.player.radius++;
 			}
+			cancelCollisions(destEntityKey);
 			delete entities[destEntityKey];
 			delete entityTypes.bullet[destEntityKey];
+			delete playerInfo[destEntityKey];
 		}
 		io.emit('collision', causeEntityKey, destEntityKey);
 	};
@@ -154,9 +144,6 @@ module.exports = function(app, io){
 	var entityTypes = { player: {},
 			    bullet: {}};
 
-	var collisionTable = { player: { bullet: null},
-			       bullet: { player: null}};
-
 	// some info about each player for the server only:
 	// maps player usernames to additional info in format: {bulletNo, lastUpdated, list of collisions, log}
 	var playerInfo = {};
@@ -182,6 +169,16 @@ module.exports = function(app, io){
 		entity.x += multiplier*(entity.dx);
 		playerInfo[entityKey].lastUpdated = process.hrtime();
 
+		if(entity.type === 'bullet'){
+
+					if(entity.x < 0 || entity.x > canvasWidth || entity.y < 0 || entity.y > canvasHeight){
+						cancelCollisions(entityKey);
+						delete entities[entityKey];
+						delete entityTypes.bullet[entityKey];
+						delete playerInfo[entityKey];
+					}
+		}
+
 		//checks/validation
 		if(entity.x > canvasWidth)
 			entity.x = canvasWidth;
@@ -192,6 +189,7 @@ module.exports = function(app, io){
 			entity.y = canvasHeight;
 		else if(entity.y < 0)
 			entity.y = 0;
+
 	}
 
 	//**********************************************
@@ -231,6 +229,7 @@ module.exports = function(app, io){
 
 			delete entities[username];
 			delete entityTypes.player[username];
+			delete playerInfo[username];
 			io.emit('player left', username);
 		});
 
@@ -362,6 +361,20 @@ module.exports = function(app, io){
 
 	});
 
+	//memory leak check
+	/*setInterval(() => {
+		console.log('\n\nentToCollIDs: ' + Object.keys(entToCollIDs).length
+							+ '\nentities: ' + Object.keys(entities).length
+							+ '\nentityTypes.player: ' + Object.keys(entityTypes.player).length
+						  + '\nentityTypes.bullet: ' + Object.keys(entityTypes.bullet).length
+						  + '\nplayerInfo: ' + Object.keys(playerInfo).length);
+	}, 3000);*/
+
+	setInterval(() => {
+		Object.keys(entityTypes.bullet).forEach((bulletKey) => {
+			updateEntity(bulletKey);
+		});
+	}, 30000);
 
 	app.get('/blog/shootyballs', function(req, res){
 		res.render('shooty-balls');
