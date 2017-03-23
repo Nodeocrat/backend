@@ -227,6 +227,8 @@ module.exports = function(app) {
   app.get('/blog/apalg', (req, res)=>{
     res.render('auslander-parter');
   });
-
+  app.get('/blog/react-app', (req,res)=>{
+    res.render('react-app');
+  });
 
 };
