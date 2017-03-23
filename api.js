@@ -3,7 +3,6 @@ const flash = require('connect-flash');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const path = require('path');
-const exphbs = require('express-handlebars');
 const session = require('express-session');
 const status = require('http-status');
 const dbtools = require('./models/dbtools');
@@ -16,17 +15,7 @@ const User = require('./models/user.js');
 // routes
 const auth = require('./auth');
 
-// other
-const ROOT = '/home/ashley/development/Projects/template_projects/http2_backend_template/';
-
 module.exports = function(app) {
-
-  //app.use(express.static(__dirname + '/client'));
-
-  //handlebars setup
-  app.set('views', path.join(__dirname, 'views'));
-  app.engine('handlebars', exphbs({defaultLayout:'layout'}));
-  app.set('view engine', 'handlebars');
 
   // Helper routes
   app.use(bodyParser.urlencoded({ extended: true }));
@@ -42,11 +31,7 @@ module.exports = function(app) {
   });
   //TODO set global vars here for use in the views
   app.use(function (req, res, next) {
-    res.locals.success_msg = req.flash('success_msg');
-    res.locals.error_msg = req.flash('error_msg');
-    res.locals.error = req.flash('error');
     res.locals.user = req.user || null;
-
     next();
   });
 
@@ -228,5 +213,8 @@ module.exports = function(app) {
     res.render('auslander-parter');
   });
 
+  app.get('/blog/react-app', (req, res)=>{
+    res.render('react-app');
+  });
 
 };

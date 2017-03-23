@@ -40,7 +40,7 @@ module.exports = function() {
 
       const ipAddr = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
       const sendData = 'secret=' + config.recaptchaSecret + '&response='
-        + req.body.recatchaResponse + '&remoteip=' + ipAddr;
+        + req.body.recaptchaResponse + '&remoteip=' + ipAddr;
       const options = {
         method: 'post',
         body: sendData,
