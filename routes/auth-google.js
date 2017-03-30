@@ -18,7 +18,7 @@ module.exports = function(){
   passport.use(new GoogleStrategy({
       clientID: Config.GOOGLE_CLIENT_ID,
       clientSecret: Config.GOOGLE_CLIENT_SECRET,
-      callbackURL: "https://localhost/api/auth/google/callback"
+      callbackURL: "https://www.nodeocrat.com/api/auth/google/callback"
     },
     function(accessToken, refreshToken, profile, done) {
       //console.log(JSON.stringify(profile));
