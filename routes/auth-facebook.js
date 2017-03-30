@@ -15,7 +15,7 @@ module.exports = function(){
     {
       clientID: Config.facebookClientId,
       clientSecret: Config.facebookClientSecret,
-      callbackURL: 'https://www.nodeocrat.com/auth/facebook/callback',
+      callbackURL: 'https://localhost/api/auth/facebook/callback',
       // Necessary for new version of Facebook graph API
       profileFields: ['id', 'emails', 'name']
     },
@@ -55,18 +55,18 @@ module.exports = function(){
     // profile parameters' properties
     passport.authenticate('facebook', function(err, user, profile) {
       if (err) { return next(err); }
-      if (!user) {
-        req.flash("facebookName", profile.name.givenName + " " + profile.name.familyName);
-        req.flash("email", profile.emails[0].value);
-        req.flash("facebookPhotoUrl", 'https://graph.facebook.com/' +
-          profile.id.toString() + '/picture?type=normal');
-        req.flash("facebookId", profile.id);
-
-        return res.redirect('/register');
+      if(!user){
+        if(req.header('Referer'))
+          return res.redirect(req.header('Referer') + '?err=Facebook');
+        else
+          return res.redirect('/login?err=Facebook');
       }
       req.logIn(user, function(err) {
         if (err) { return next(err); }
-        return res.redirect('/');
+        if(req.header('Referer'))
+          return res.redirect(req.header('Referer') + '/..');
+        else
+          return res.redirect('/');
       });
     })(req, res, next);
   });

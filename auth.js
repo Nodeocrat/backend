@@ -29,6 +29,39 @@ module.exports = function() {
       exec(done);
   });
 
+  router.get('/user', function(req, res){
+    if(req.user) {
+      let socialProfiles = {};
+      if(req.user.oauth){
+        if(req.user.oauth.facebook)
+          socialProfiles.facebook = req.user.oauth.facebook;
+        else
+          socialProfiles.facebook = null;
+
+        if(req.user.oauth.google)
+          socialProfiles.google = req.user.oauth.google;
+        else
+          socialProfiles.google = null;
+      }
+      const passwordSet = req.user.password ? true : false;
+      return res.json({
+        signedIn: true,
+        profile: {
+          username: req.user.username,
+          email: req.user.email,
+          photoUrl: req.user.displayPicture.value,
+          passwordSet: passwordSet
+        },
+        socialProfiles: socialProfiles
+      });
+    } else {
+      return res.json({
+        signedIn: false,
+        profile: null
+      });
+    }
+  });
+
   router.post('/register', function(req, res){
     if(!req.body)
       res.status(500).end();
@@ -180,7 +213,7 @@ module.exports = function() {
 
   router.post('/logout', function(req, res){
     req.logout();
-    res.redirect('/login');
+    res.json({"actions": ["Successfully signed out"]});
   });
 
   router.get('/login', function(req, res){

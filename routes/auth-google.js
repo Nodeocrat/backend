@@ -18,7 +18,7 @@ module.exports = function(){
   passport.use(new GoogleStrategy({
       clientID: Config.GOOGLE_CLIENT_ID,
       clientSecret: Config.GOOGLE_CLIENT_SECRET,
-      callbackURL: "https://www.nodeocrat.com/auth/google/callback"
+      callbackURL: "https://localhost/api/auth/google/callback"
     },
     function(accessToken, refreshToken, profile, done) {
       //console.log(JSON.stringify(profile));
@@ -44,7 +44,13 @@ module.exports = function(){
   ));
 
   // Express routes for auth
-  route.get('/auth/google', passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login', 'email'] }));
+  route.get('/auth/google', function(req, res, next){
+    if(req.header('Referer'))
+      req.flash('backUrl', req.header('Referer'));
+    else
+      req.flash('backUrl', '/');
+    next();
+  }, passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login', 'email'] }));
 
   route.get('/auth/google/callback', function(req, res, next) {
 
@@ -52,16 +58,15 @@ module.exports = function(){
     // profile parameters' properties
     passport.authenticate('google', function(err, user, profile) {
       if (err) { return next(err); }
-      if (!user) {
-        req.flash("googleName", profile.displayName);
-        req.flash("email", profile.emails[0].value);
-        req.flash("googlePhotoUrl", profile.photos[0].value);
-        req.flash("googleId", profile.id);
-        return res.redirect('/register');
+      if(!user){
+        return res.redirect(req.flash('backUrl') + '?err=Google');
       }
       req.logIn(user, function(err) {
         if (err) { return next(err); }
-        return res.redirect('/');
+        if(req.header('Referer'))
+          return res.redirect(req.header('Referer') + '/..');
+        else
+          return res.redirect('/');
       });
     })(req, res, next);
   });

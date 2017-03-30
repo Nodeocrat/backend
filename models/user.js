@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const constants = require('../constants');
 const sites = require('../config.js').OAUTH_SITES;
 
-const defaultPic = '/static/images/default%20profile%20picture.png';
+const defaultPic = '/defaultphoto.png';
 
 const UserSchema = new mongoose.Schema({
   username: {

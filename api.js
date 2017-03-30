@@ -39,11 +39,6 @@ module.exports = function(app) {
     res.render('index');
   });
 
-  app.get('/account', auth.ensureAuthenticated, function(req, res){
-    const user = res.locals.user;
-    res.render('account');
-  });
-
   app.post('/account/update', auth.ensureAuthenticated, function(req, res){
 
     const user = req.user;
@@ -177,6 +172,9 @@ module.exports = function(app) {
       return res.json({"errors": "Invalid data sent to server"});
     }
 
+    if(!profile)
+      return res.json({"errors": "Invalid data sent to server"});
+
     const site = req.params.site;
     const user = req.user;
     const siteStr = site.charAt(0).toUpperCase() + site.slice(1);
@@ -203,18 +201,6 @@ module.exports = function(app) {
         });
       }
     });
-  });
-
-  app.get('/blog', (req, res)=>{
-    res.render('blog');
-  });
-
-  app.get('/blog/apalg', (req, res)=>{
-    res.render('auslander-parter');
-  });
-
-  app.get('/blog/react-app', (req, res)=>{
-    res.render('react-app');
   });
 
 };

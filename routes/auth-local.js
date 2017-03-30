@@ -37,26 +37,18 @@ module.exports = function() {
       if(!req.body.username)
         return res.json({"errors": ["Username must be supplied"]});
 
-      // custom authentication
       passport.authenticate('local', function(err, user, info) {
         if (err) { return next(err); }
-        if (!user){
-          if(req.body.redirect === false)
-            return res.json({"errors": [info.msg]});
-
-          req.flash('login_error', info.msg);
-          return res.redirect('/login');
-        }
-
+        if (!user)
+          return res.json({"errors": [info.msg]});
+          
         req.logIn(user, function(err) {
-          if (err) { return next(err); }
-          if(req.body.redirect === false)
-            return res.json({'login': 'success'});
-          else
-            return res.redirect('/');
+          if (err)
+            return next(err);
+
+          return res.json({'success': 'Successfully signed in'});
         });
       })(req, res, next);
-      //next();
     }
     // old/regular way...
     /*passport.authenticate('local'),
