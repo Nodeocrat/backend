@@ -64,7 +64,7 @@ module.exports = function(){
       req.logIn(user, function(err) {
         if (err) { return next(err); }
         if(req.header('Referer'))
-          return res.redirect(req.header('Referer') + '/..');
+          return res.redirect(req.flash('backUrl') + '/..');
         else
           return res.redirect('/');
       });
