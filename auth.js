@@ -31,17 +31,17 @@ module.exports = function() {
 
   router.get('/user', function(req, res){
     if(req.user) {
-      let socialProfiles = {};
+      let linkedProfiles = {};
       if(req.user.oauth){
         if(req.user.oauth.facebook)
-          socialProfiles.facebook = req.user.oauth.facebook;
+          linkedProfiles.facebook = req.user.oauth.facebook;
         else
-          socialProfiles.facebook = null;
+          linkedProfiles.facebook = null;
 
         if(req.user.oauth.google)
-          socialProfiles.google = req.user.oauth.google;
+          linkedProfiles.google = req.user.oauth.google;
         else
-          socialProfiles.google = null;
+          linkedProfiles.google = null;
       }
       const passwordSet = req.user.password ? true : false;
       return res.json({
@@ -52,7 +52,7 @@ module.exports = function() {
           photoUrl: req.user.displayPicture.value,
           passwordSet: passwordSet
         },
-        socialProfiles: socialProfiles
+        linkedProfiles: linkedProfiles
       });
     } else {
       return res.json({
