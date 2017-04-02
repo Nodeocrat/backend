@@ -57,7 +57,7 @@ module.exports = function(){
       if (err) { return next(err); }
       if(!user){
         if(req.header('Referer'))
-          return res.redirect(req.header('Referer') + '?showLogin&loginErr=Facebook');
+          return res.redirect(req.header('Referer') + '?showLogin=true&loginErr=Facebook');
         else
           return res.redirect('/?showLogin=true&loginErr=Facebook');
       }
