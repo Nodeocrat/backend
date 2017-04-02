@@ -57,14 +57,14 @@ module.exports = function(){
       if (err) { return next(err); }
       if(!user){
         if(req.header('Referer'))
-          return res.redirect(req.header('Referer') + '?err=Facebook');
+          return res.redirect(req.header('Referer') + '?showLogin&loginErr=Facebook');
         else
-          return res.redirect('/login?err=Facebook');
+          return res.redirect('/?showLogin=true&loginErr=Facebook');
       }
       req.logIn(user, function(err) {
         if (err) { return next(err); }
         if(req.header('Referer'))
-          return res.redirect(req.header('Referer') + '/..');
+          return res.redirect(req.header('Referer'));
         else
           return res.redirect('/');
       });

@@ -57,16 +57,15 @@ module.exports = function(){
     // A custom verify callback is necessary due to the need to flash the
     // profile parameters' properties
     passport.authenticate('google', function(err, user, profile) {
-      if (err) { return next(err); }
-      if(!user){
-        return res.redirect(req.flash('backUrl') + '?err=Google');
-      }
+      if(err)
+        return next(err);
+      if(!user)
+        return res.redirect(req.flash('backUrl') + '?showLogin=true&loginErr=Google');
+
       req.logIn(user, function(err) {
-        if (err) { return next(err); }
-        if(req.header('Referer'))
-          return res.redirect(req.flash('backUrl') + '/..');
-        else
-          return res.redirect('/');
+        if(err)
+          return next(err);
+        return res.redirect(req.flash('backUrl'));
       });
     })(req, res, next);
   });
