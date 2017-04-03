@@ -154,8 +154,10 @@ module.exports = function(app, io){
 	var updateEntity = function(entityKey){
 		// could pass a time through to perfectly synchronize 2+ entities, if undefined, carry on this way...
 
-	    var entity = entities[entityKey];
+	  var entity = entities[entityKey];
 		var multiplier;
+		if(!playerInfo[entityKey])
+			return;
 		if(playerInfo[entityKey].lastUpdated === undefined)
 		{
 			multiplier = 0.0167;
