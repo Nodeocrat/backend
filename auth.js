@@ -216,21 +216,6 @@ module.exports = function() {
     res.json({"actions": ["Successfully signed out"]});
   });
 
-  router.get('/login', function(req, res){
-    res.locals.login_error = req.flash('login_error');
-    res.render('login');
-  });
-
-  router.get('/register', function(req, res){
-    res.locals.email = req.flash('email') || null;
-    sites.forEach((site)=>{
-      res.locals[site + 'Name'] = req.flash(site + "Name") || null;
-      res.locals[site + 'Id'] = req.flash(site + "Id") || null;
-      res.locals[site + 'PhotoUrl'] = req.flash(site + "PhotoUrl")|| null;
-    });
-    res.render('register');
-  });
-
   return router;
 };
 

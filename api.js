@@ -35,10 +35,6 @@ module.exports = function(app) {
     next();
   });
 
-  app.get('/', function(req, res){
-    res.render('index');
-  });
-
   app.post('/account/update', auth.ensureAuthenticated, function(req, res){
 
     const user = req.user;
