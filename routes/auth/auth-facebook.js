@@ -1,7 +1,7 @@
 const Config = require('../../config');
 const API_ROOT = Config.API_ROOT;
 const express = require('express');
-const User = require(API_ROOT + 'models/user.js');
+const User = require(API_ROOT + '/models/user.js');
 const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
 

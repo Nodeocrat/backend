@@ -1,6 +1,6 @@
 const Config = require('../../config.js');
 const express = require('express');
-const User = require(Config.API_ROOT + 'models/user.js');
+const User = require(Config.API_ROOT + '/models/user.js');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 

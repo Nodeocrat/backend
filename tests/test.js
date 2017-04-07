@@ -7,7 +7,7 @@ const superagent = require('superagent');
 const mongoose = require('mongoose');
 const status = require('http-status');
 const session = require('express-session');
-const constants = require(API_ROOT + 'constants');
+const constants = require(API_ROOT + '/constants');
 
 // Convenience constants
 const port = 3000;
@@ -66,7 +66,7 @@ describe('API', function() {
     app = express();
 	  mongoose.connect('mongodb://localhost:27017/test');
 
-    User = require(API_ROOT + 'models/user');
+    User = require(API_ROOT + '/models/user');
 	  User.remove({}, function(error){
 		  assert.ifError(error);
 	  });
@@ -81,7 +81,7 @@ describe('API', function() {
         secure: true
     }));
 
-    require(API_ROOT + 'api')(app);
+    require(API_ROOT + '/api')(app);
 
     server = app.listen(port);
   });

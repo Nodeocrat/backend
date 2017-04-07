@@ -1,3 +1,5 @@
+API_ROOT = require('path').resolve(__dirname);
+
 module.exports = {
   "facebookClientId": "211294722567307",
   "facebookClientSecret": "bd591ac690912bacbca48cd35fc707bf",
@@ -7,5 +9,5 @@ module.exports = {
   "openExchangeRatesKey": "ad37580bd1ab4b86b73960d931e28973",
   "recaptchaSecret": "6LdzWA4UAAAAAB8_GXCCR-p6qV5nc2wBtcD_oOfu",
   "OAUTH_SITES": ["google", "facebook"],
-  "API_ROOT": "/home/ashley/nodeocrat/backend/"
+  "API_ROOT": API_ROOT
 };

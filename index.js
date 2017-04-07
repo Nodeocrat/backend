@@ -25,11 +25,11 @@ app.use(session({
     store: new MongoStore({url: mongoUrl})
 }));
 
-require(API_ROOT + 'api')(app);
+require(API_ROOT + '/api')(app);
 
 const server = require('http').createServer(app);
 const io    = require( "socket.io" )();
-require(API_ROOT + 'shooty-balls/shooty-balls-app.js')(app, io);
+require(API_ROOT + '/shooty-balls/shooty-balls-app.js')(app, io);
 io.attach(server);
 
 server.listen(port, (err) => {

@@ -2,9 +2,9 @@ const Config = require('../../config');
 const API_ROOT = Config.API_ROOT;
 const express = require('express');
 const status = require('http-status');
-const User = require(API_ROOT + 'models/user.js');
-const constants = require(API_ROOT + 'constants.js');
-const dbtools = require(API_ROOT + 'models/dbtools.js');
+const User = require(API_ROOT + '/models/user.js');
+const constants = require(API_ROOT + '/constants.js');
+const dbtools = require(API_ROOT + '/models/dbtools.js');
 const passport = require('passport');
 
 const sites = Config.OAUTH_SITES;

@@ -5,15 +5,15 @@ const bodyParser = require('body-parser');
 const flash = require('connect-flash');
 const cookieParser = require('cookie-parser');
 const status = require('http-status');
-const dbtools = require(API_ROOT + 'models/dbtools');
-const constants = require(API_ROOT + 'constants.js');
+const dbtools = require(API_ROOT + '/models/dbtools');
+const constants = require(API_ROOT + '/constants.js');
 const sites = Config.OAUTH_SITES;
 
 // models
-const User = require(API_ROOT + 'models/user.js');
+const User = require(API_ROOT + '/models/user.js');
 
 // routes
-const auth = require(API_ROOT + 'routes/auth/auth.js');
+const auth = require(API_ROOT + '/routes/auth/auth.js');
 
 module.exports = function(app) {
 
@@ -25,9 +25,9 @@ module.exports = function(app) {
 
   // Authorization routes
   app.use(auth());
-  app.use(require(API_ROOT + 'routes/auth/auth-local.js')());
+  app.use(require(API_ROOT + '/routes/auth/auth-local.js')());
   sites.forEach((site)=>{
-    app.use(require(API_ROOT + 'routes/auth/auth-' + site + '.js')());
+    app.use(require(API_ROOT + '/routes/auth/auth-' + site + '.js')());
   });
 
   app.post('/account/update', auth.ensureAuthenticated, function(req, res){
