@@ -1,25 +1,18 @@
+const Config = require('../config');
+const API_ROOT = Config.API_ROOT;
+
 const assert = require('assert');
 const express = require('express');
 const superagent = require('superagent');
-const path = require('path');
 const mongoose = require('mongoose');
 const status = require('http-status');
 const session = require('express-session');
-const constants = require('../constants');
-
-/*var Agent = require('agentkeepalive');
-var keepaliveAgent = new Agent({
-  maxSockets: 100,
-  maxFreeSockets: 10,
-  timeout: 60000,
-  keepAliveTimeout: 30000 // free socket keepalive for 30 seconds
-});*/
+const constants = require(API_ROOT + 'constants');
 
 // Convenience constants
 const port = 3000;
 const passwordStr = 'testpass';
 const URL_ROOT = 'http://localhost:' + port + '/';
-const SERVER_ROOT = '../';
 
 // Convenience functions
 function parseJsonResponse(res) {
@@ -73,7 +66,7 @@ describe('API', function() {
     app = express();
 	  mongoose.connect('mongodb://localhost:27017/test');
 
-    User = require(SERVER_ROOT + 'models/user');
+    User = require(API_ROOT + 'models/user');
 	  User.remove({}, function(error){
 		  assert.ifError(error);
 	  });
@@ -88,7 +81,7 @@ describe('API', function() {
         secure: true
     }));
 
-    require(SERVER_ROOT + 'api')(app);
+    require(API_ROOT + 'api')(app);
 
     server = app.listen(port);
   });

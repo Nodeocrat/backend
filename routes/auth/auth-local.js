@@ -1,8 +1,7 @@
-const express = require('express');
-const status = require('http-status');
-const path = require('path');
-const User = require(path.resolve(__dirname,'..','models','user.js'));
+const API_ROOT = require('../../config').API_ROOT;
 
+const express = require('express');
+const User = require(API_ROOT + 'models/user.js');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 
@@ -41,7 +40,7 @@ module.exports = function() {
         if (err) { return next(err); }
         if (!user)
           return res.json({"errors": [info.msg]});
-          
+
         req.logIn(user, function(err) {
           if (err)
             return next(err);

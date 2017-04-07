@@ -20,12 +20,5 @@ module.exports = {
     EMAIL_REQUIRED: "An email address is required",
     DUPLICATE_SOCIAL_ACCOUNT: (site)=>{return "That " + site + " account is already linked to a " + SITE_NAME + " account";},
     RECAPTCHA_ERROR: "There is a problem with verifying the Recaptcha challenge. Please make sure it has been completed correctly."
-  },
-  social: {
-    FACEBOOK_PROFILE_PIC: (user, size)=>{
-      const sizeStr = size ? size : "normal";
-      return "https://graph.facebook.com/" + user.oauth.facebook.id.toString() +
-        "/picture?type=" + sizeStr;
-    }
   }
 };

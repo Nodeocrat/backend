@@ -1,12 +1,9 @@
+const Config = require('../../config.js');
 const express = require('express');
-const status = require('http-status');
-const path = require('path');
-const User = require(path.resolve(__dirname,'..','models','user.js'));
-
+const User = require(Config.API_ROOT + 'models/user.js');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
-const Config = require('../config.js');
 
 module.exports = function(){
   const route = express.Router();

@@ -1,19 +1,19 @@
+const Config = require('./config');
+const API_ROOT = Config.API_ROOT;
+
 const bodyParser = require('body-parser');
 const flash = require('connect-flash');
-const express = require('express');
 const cookieParser = require('cookie-parser');
-const path = require('path');
-const session = require('express-session');
 const status = require('http-status');
-const dbtools = require('./models/dbtools');
-const constants = require('./constants.js');
-const sites = require('./config.js').OAUTH_SITES;
+const dbtools = require(API_ROOT + 'models/dbtools');
+const constants = require(API_ROOT + 'constants.js');
+const sites = Config.OAUTH_SITES;
 
 // models
-const User = require('./models/user.js');
+const User = require(API_ROOT + 'models/user.js');
 
 // routes
-const auth = require('./auth');
+const auth = require(API_ROOT + 'routes/auth/auth.js');
 
 module.exports = function(app) {
 
@@ -25,14 +25,9 @@ module.exports = function(app) {
 
   // Authorization routes
   app.use(auth());
-  app.use(require('./routes/auth-local.js')());
+  app.use(require(API_ROOT + 'routes/auth/auth-local.js')());
   sites.forEach((site)=>{
-    app.use(require('./routes/auth-' + site + '.js')());
-  });
-  //TODO set global vars here for use in the views
-  app.use(function (req, res, next) {
-    res.locals.user = req.user || null;
-    next();
+    app.use(require(API_ROOT + 'routes/auth/auth-' + site + '.js')());
   });
 
   app.post('/account/update', auth.ensureAuthenticated, function(req, res){

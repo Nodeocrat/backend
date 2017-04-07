@@ -1,6 +1,5 @@
 const mongoose  = require('mongoose');
 const bcrypt = require('bcrypt');
-const constants = require('../constants');
 const sites = require('../config.js').OAUTH_SITES;
 
 const defaultPic = '/defaultphoto.png';
@@ -116,10 +115,6 @@ UserSchema.methods.hasPassword = function(){
   else
     return false;
 };
-UserSchema.methods.emailIsValid = function(){
-  const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(this.email);
-}
 // Note this function does NOT save the changes
 UserSchema.methods.removeLink = function(site){
   this.oauth[site] = null;

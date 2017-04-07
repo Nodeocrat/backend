@@ -6,5 +6,6 @@ module.exports = {
   "stripeKey": "sk_test_GZmUEfqOSH7r5umweEHCeCe0",
   "openExchangeRatesKey": "ad37580bd1ab4b86b73960d931e28973",
   "recaptchaSecret": "6LdzWA4UAAAAAB8_GXCCR-p6qV5nc2wBtcD_oOfu",
-  "OAUTH_SITES": ["google", "facebook"]
+  "OAUTH_SITES": ["google", "facebook"],
+  "API_ROOT": "/home/ashley/nodeocrat/backend/"
 };

@@ -1,7 +1,6 @@
 {
-  "name": "mean_template_1",
-  "version": "1.0.0",
-  "description": "Convenience template",
+  "name": "nodeocrat",
+  "version": "2.0.0",
   "main": "index.js",
   "scripts": {
     "test": "mocha tests",
@@ -25,14 +24,12 @@
     "passport-facebook": "^2.1.1",
     "passport-google-oauth": "^1.0.0",
     "passport-local": "^1.0.0",
-	"socket.io": "~1.7.3",
-    "request": "^2.79.0",
-    "underscore": "1.8.3"
+	  "socket.io": "~1.7.3",
+    "request": "^2.79.0"
   },
   "devDependencies": {
     "mocha": "^3.1.0",
-    "superagent": "^2.3.0",
-    "supertest": "^2.0.1"
+    "superagent": "^2.3.0"
   },
   "author": "Ashley Phillips",
   "license": "ISC"

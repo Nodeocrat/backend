@@ -1,13 +1,13 @@
+const Config = require('../../config');
+const API_ROOT = Config.API_ROOT;
 const express = require('express');
-const path = require('path');
 const status = require('http-status');
-const User = require(path.resolve(__dirname, 'models','user.js'));
-const constants = require('./constants.js');
-const dbtools = require('./models/dbtools.js');
-const config = require('./config.js');
+const User = require(API_ROOT + 'models/user.js');
+const constants = require(API_ROOT + 'constants.js');
+const dbtools = require(API_ROOT + 'models/dbtools.js');
 const passport = require('passport');
 
-const sites = config.OAUTH_SITES;
+const sites = Config.OAUTH_SITES;
 
 module.exports = function() {
 
@@ -21,9 +21,6 @@ module.exports = function() {
   });
 
   passport.deserializeUser(function(id, done) {
-    /*User.getById(id, function (err, user) {
-      done(err, user);
-    });*/
     User.
       findOne({ _id : id }).
       exec(done);
@@ -69,10 +66,10 @@ module.exports = function() {
     Promise.resolve(new Promise((resolve, reject) => {
 
       if(process.env.NODE_ENV !== "production")
-        resolve();
+        return resolve();
 
       const ipAddr = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-      const sendData = 'secret=' + config.recaptchaSecret + '&response='
+      const sendData = 'secret=' + Config.recaptchaSecret + '&response='
         + req.body.recaptchaResponse + '&remoteip=' + ipAddr;
       const options = {
         method: 'post',
@@ -100,7 +97,7 @@ module.exports = function() {
           if(!response || !response.success)
             return reject();
           else
-            resolve();
+            return resolve();
         }
       });
     }))
@@ -136,11 +133,12 @@ module.exports = function() {
         }
       }
 
+
       if(!req.body.username)
         errors.push(constants.registration.USERNAME_REQUIRED);
       if(!req.body.email)
         errors.push(constants.registration.EMAIL_REQUIRED);
-      if(!newUser.emailIsValid())
+      if(!req.body.email || !User.validateEmail(req.body.email))
         errors.push(constants.account.INVALID_EMAIL);
 
       sites.forEach((site)=>{
