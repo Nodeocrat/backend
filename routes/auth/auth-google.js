@@ -41,7 +41,7 @@ module.exports = function(){
   ));
 
   // Express routes for auth
-  route.get('/auth/google', function(req, res, next){
+  route.get('/google', function(req, res, next){
     if(req.header('Referer'))
       req.flash('backUrl', req.header('Referer'));
     else
@@ -49,7 +49,7 @@ module.exports = function(){
     next();
   }, passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login', 'email'] }));
 
-  route.get('/auth/google/callback', function(req, res, next) {
+  route.get('/google/callback', function(req, res, next) {
 
     // A custom verify callback is necessary due to the need to flash the
     // profile parameters' properties

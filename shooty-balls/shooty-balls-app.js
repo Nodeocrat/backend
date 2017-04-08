@@ -363,7 +363,7 @@ module.exports = function(app, io){
 
 	});
 
-	//memory leak check
+	//memory leak test
 	/*setInterval(() => {
 		console.log('\n\nentToCollIDs: ' + Object.keys(entToCollIDs).length
 							+ '\nentities: ' + Object.keys(entities).length
@@ -377,8 +377,4 @@ module.exports = function(app, io){
 			updateEntity(bulletKey);
 		});
 	}, 30000);
-
-	app.get('/blog/shootyballs', function(req, res){
-		res.render('shooty-balls');
-	});
 }

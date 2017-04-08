@@ -42,11 +42,11 @@ module.exports = function(){
   ));
 
   // Express routes for auth
-  route.get('/auth/facebook',
+  route.get('/facebook',
     passport.authenticate('facebook', { scope: ['email'] })
   );
 
-  route.get('/auth/facebook/callback', function(req, res, next) {
+  route.get('/facebook/callback', function(req, res, next) {
 
     // A custom verify callback is necessary due to the need to flash the
     // profile parameters' properties

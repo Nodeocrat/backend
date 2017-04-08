@@ -28,7 +28,7 @@ module.exports = function() {
   ));
 
   router.post(
-	  '/login/local',
+	  '/local/login',
     function(req, res, next){
       let errors = [];
       if(!req.body.password)
