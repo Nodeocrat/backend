@@ -17,20 +17,26 @@ app.use(helmet({
   ieNoOpen: false,
   dnsPrefetchControl: false
 }));
-app.use(session({
+
+const sessionMiddleware = session({
     secret: 'dogjdsoijqE4rt89q3ur4rt£W$T*IQfiaf83q489rth8y',
     saveUninitialized: false,
 	  resave: false,
     secure: true,
     store: new MongoStore({url: mongoUrl})
-}));
+});
 
-const io    = require( "socket.io" )();
-require(API_ROOT + '/api')(app, io);
-
+app.use(sessionMiddleware);
 const server = require('http').createServer(app);
-io.attach(server);
 
+// Setup socket.io. Session middleware given so 'user' can be accessed in
+// socket.io via socket.request.user in the same way as in express via req.user
+const socketIo = require(API_ROOT + '/socket-io-setup.js')(server, sessionMiddleware);
+
+// api setup
+require(API_ROOT + '/api')(app, socketIo);
+
+// start server
 server.listen(port, (err) => {
   if(err){
     console.error(err);

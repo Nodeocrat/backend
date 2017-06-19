@@ -2,6 +2,7 @@ const Config = require('../../config');
 const API_ROOT = Config.API_ROOT;
 const sites = Config.OAUTH_SITES;
 const express = require('express');
+const User = require('../../models/user');
 
 module.exports = function() {
 
@@ -9,7 +10,7 @@ module.exports = function() {
 
   router.post('/logout', function(req, res){
     req.logout();
-    res.json({"actions": ["Successfully signed out"]});
+    res.json({'user': User.formatForClient()});
   });
 
   router.use(require(API_ROOT + '/routes/auth/auth-local.js')());

@@ -95,6 +95,36 @@ UserSchema.statics.NoSuchUser = function(user){
 UserSchema.statics.InvalidPassword = function(user){
   return "Invalid password for user " + user + ".";
 };
+UserSchema.statics.formatForClient = function(user){
+  if(!user)
+    return { profile: null, linkedProfiles: null };
+
+  const formattedUser = {
+    profile: {},
+    linkedProfiles: null
+  };
+
+  //Profile
+  formattedUser.profile.username = user.username;
+  formattedUser.profile.email = user.email;
+  formattedUser.profile.photoUrl = user.displayPicture.value;
+
+  if(user.password)
+    formattedUser.profile.passwordSet = true;
+  else
+    formattedUser.profile.passwordSet = false;
+
+  //Linked accounts
+  if(user.hasLinkedAccounts()){
+    formattedUser.linkedProfiles = Object.assign({}, user.oauth);
+    sites.forEach(site => {
+      if(!formattedUser.linkedProfiles[site])
+        formattedUser.linkedProfiles[site] = null;
+    });
+  }
+
+  return formattedUser;
+}
 
 
 // instance methods
@@ -119,9 +149,18 @@ UserSchema.methods.hasPassword = function(){
 UserSchema.methods.removeLink = function(site){
   this.oauth[site] = null;
 };
+UserSchema.methods.hasLinkedAccounts = function(){
+  if(!this.oauth)
+    return false;
+  for(let i = 0; i < sites.length; i++){
+    let val = sites[i];
+    if(this.oauth[val] && this.oauth[val].id)
+      return true;
+  }
+  return false
+
+}
 UserSchema.methods.hasOtherLinkedAccounts = function(site){
-  // put all in an array, remove elements with value == site, check length > 0
-  // This is where I'd need Config. I need config to tell me how many sites I'm linked to...
   for(let i = 0; i < sites.length; i++){
     let val = sites[i];
     if(val !== site && this.oauth[val] && this.oauth[val].id)

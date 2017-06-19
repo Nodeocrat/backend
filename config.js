@@ -9,5 +9,6 @@ module.exports = {
   "openExchangeRatesKey": "ad37580bd1ab4b86b73960d931e28973",
   "recaptchaSecret": "6LdzWA4UAAAAAB8_GXCCR-p6qV5nc2wBtcD_oOfu",
   "OAUTH_SITES": ["google", "facebook"],
-  "API_ROOT": API_ROOT
+  "API_ROOT": API_ROOT,
+  "UTILS": API_ROOT + '/utils'
 };

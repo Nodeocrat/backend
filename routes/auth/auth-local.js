@@ -28,7 +28,7 @@ module.exports = function() {
   ));
 
   router.post(
-	  '/local/login',
+	  '/local',
     function(req, res, next){
       let errors = [];
       if(!req.body.password)
@@ -45,7 +45,7 @@ module.exports = function() {
           if (err)
             return next(err);
 
-          return res.json({'success': 'Successfully signed in'});
+          return res.json({'user': User.formatForClient(user)});
         });
       })(req, res, next);
     }

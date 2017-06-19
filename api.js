@@ -28,7 +28,8 @@ module.exports = function(app, io) {
 
   if(io){
     // Game project
-    require(API_ROOT + '/shooty-balls/shooty-balls-app.js')(app, io);
+    require(API_ROOT + '/NodeSocial/node-social.js')(app, io);
+    //require(API_ROOT + '/shooty-balls/shooty-balls-app.js')(app, io);
   }
 
 };

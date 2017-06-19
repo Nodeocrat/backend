@@ -15,34 +15,15 @@ module.exports = function(){
 
   router.get('/user', function(req, res){
     if(req.user) {
-      let linkedProfiles = {};
-      if(req.user.oauth){
-        if(req.user.oauth.facebook)
-          linkedProfiles.facebook = req.user.oauth.facebook;
-        else
-          linkedProfiles.facebook = null;
-
-        if(req.user.oauth.google)
-          linkedProfiles.google = req.user.oauth.google;
-        else
-          linkedProfiles.google = null;
-      }
-      const passwordSet = req.user.password ? true : false;
-      return res.json({
-        signedIn: true,
-        profile: {
-          username: req.user.username,
-          email: req.user.email,
-          photoUrl: req.user.displayPicture.value,
-          passwordSet: passwordSet
-        },
-        linkedProfiles: linkedProfiles
-      });
+      const user = User.formatForClient(req.user);
+      user.signedIn = true;
+      return res.json({'user': user});
     } else {
-      return res.json({
+      return res.json({'user': {
         signedIn: false,
-        profile: null
-      });
+        profile: null,
+        linkedProfiles: null
+      }});
     }
   });
 
@@ -283,14 +264,16 @@ module.exports = function(){
       if(errors.length > 0)
         return res.json({'errors': errors});
 
-      user.save((err, updatedUser) => {
+      user.save((err, user) => {
         if(err)
           return res.status(status.BAD_REQUEST).json({'errors': errors});
 
-        if(!updatedUser)
-          return res.status(500).json({'error': "Account failed to update. Please contact admin."});
+        if(!user)
+          return res.status(500).json({'errors': ["Account failed to update with status 500. Please contact admin."]});
 
-        res.json({'actions': actions});
+        const updatedUser = User.formatForClient(user);
+        const updatedProfile = updatedUser.profile;
+        res.json({'profile': updatedProfile, 'actions': actions});
       });
     })
     .catch(function(reason){
@@ -307,7 +290,7 @@ module.exports = function(){
     if(user.hasPassword() || user.hasOtherLinkedAccounts(site)){
       if(!user.linkedWithSite(site))
         return res.json({"errors": ["Account is not linked with " + site]});
-      user.removeLink(site)
+      user.removeLink(site);
 
       user.save((err, updatedUser)=>{
         if(err)
@@ -315,7 +298,7 @@ module.exports = function(){
         return res.json({"actions": ["Account unlinked from " + site.charAt(0).toUpperCase() + site.slice(1)]});
       });
     } else {
-      res.json({"errors": ["You must have a password or another social networking account linked, in order to unlink your " + site + " account."]});
+      return res.json({"errors": ["You must have a password or another social networking account linked, in order to unlink your " + site + " account."]});
     }
 
   });
@@ -354,7 +337,7 @@ module.exports = function(){
         user.save((err, updatedUser)=>{
           if(err)
             return res.status(500).end();
-          res.json({"actions": [siteStr + " account linked successfully"]});
+          res.json({"profile": updatedUser.oauth[site]});
         });
       }
     });
