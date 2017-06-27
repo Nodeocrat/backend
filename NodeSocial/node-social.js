@@ -4,10 +4,27 @@ const API_ROOT = config.API_ROOT;
 const UTILS = config.UTILS;
 const OrderedHash = require(UTILS + '/OrderedHash.js');
 
+
+
 module.exports = function(app, io){
 
   // {username, picUrl}
   const lobbyPlayers = new OrderedHash();
+  const NodeShooterInstance = require(API_ROOT + '/shooty-balls/shooty-balls-app.js')(io);
+
+  const joinLobby = function(socket, user){
+    lobbyPlayers.insert(user.username, user);
+    socket.emit(EventTypes.INIT_LOBBY, lobbyPlayers.toJSON());
+    io.emit(EventTypes.PLAYERS_JOINED, [user]);
+  };
+
+  app.post('/socialapp/joingame', function(req, res){
+    //if(!req.body)
+      //res.status(500).end();
+
+    //TODO Validation checks that we are allowed to join game
+    res.json({result: 'success'});
+  });
 
   io.on('connection', function(socket){
 		const userId = socket.id;
@@ -20,9 +37,7 @@ module.exports = function(app, io){
 		console.log(`[INFO] ${username} opened new websocket session from ${addr}.`);
 
     const basicUser = {username: username, picUrl: user.displayPicture.value, status: 'online'};
-    lobbyPlayers.insert(username, basicUser);
-    socket.emit(EventTypes.INIT_LOBBY, lobbyPlayers.toJSON());
-    io.emit(EventTypes.PLAYERS_JOINED, [basicUser]);
+    joinLobby(socket, basicUser);
 
 		// TODO make sure that username not already in use
 		socket.on(EventTypes.SEND_MESSAGE, msg => {
@@ -40,9 +55,19 @@ module.exports = function(app, io){
     });
 
     socket.on(EventTypes.JOIN_GAME, info => {
-      console.log('in JOIN_GAME');
       // GameList.get(info.id).join(socket);
-      socket.emit(EventTypes.INIT_GAME, {msg: "Hello from server"});
+
+      // Run some validation checks
+      socket.emit(EventTypes.JOIN_GAME_SUCCESS, {msg: "Hello from server"});
+    });
+
+    socket.on(EventTypes.INIT_FINISH, () => {
+      NodeShooterInstance.join({socket, username});
+    });
+
+    socket.on(EventTypes.LEAVE_GAME, () => {
+      NodeShooterInstance.leave({socket, username});
+      joinLobby(socket, basicUser);
     });
 
     socket.on(EventTypes.DISCONNECT, () => {

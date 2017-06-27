@@ -10,7 +10,7 @@ var Player = class Player extends CircularEntity
         this.name= name;
         this.type = "player";
         this.hit = 0;
-        this.picUrl = picUrl;
+        this.picUrl = picUrl || "";
     }
 }
 

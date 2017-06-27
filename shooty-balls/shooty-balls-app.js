@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = function(app, io){
+module.exports = function(io/*, socket, room*/){
 
 	var playerObj = require('./EntityModel/Player');
 	var Bullet = require('./EntityModel/Bullet');
@@ -195,49 +193,40 @@ module.exports = function(app, io){
 	}
 
 	//**********************************************
-	io.on('connection', function(socket){
-		var playerId = socket.id;
-		var username;
+	const leave = user => {
+		const username = user.username;
+		const socket = user.socket;
+		console.log(`${username} left`);
+
+		// Cancel any collisions they are potentially involved in
+		cancelCollisions(username);
+
+		delete entities[username];
+		delete entityTypes.player[username];
+		delete playerInfo[username];
+
+		socket.off('disconnect', leave);
+		socket.off('move left');
+		socket.off('move right');
+		socket.off('move up');
+		socket.off('move down');
+		socket.off('stop move left');
+		socket.off('stop move right');
+		socket.off('stop move up');
+		socket.off('stop move down');
+		socket.off('player shot');
+
+		io.emit('player left', username);
+	}
+	const join = function(user){
+		const socket = user.socket;
+		var username = socket.request.user.username;
 		var addr = socket.request.connection.remoteAddress;
-		console.log('[INFO] New websocket session opened with ' + addr);
+		console.log(`${username} joined game`);
 
 		var player;
 
-
-
-
-		// TODO make sure that username not already in use
-		socket.on('login request', function(loginUserName, picUrl){
-			// give out canvas size etc? client 'welcome' is where animation starts & chat initializes etc
-
-	        console.log("[INFO] Login request received from " + addr);
-
-			//IF ACCEPTED:
-			username = loginUserName;
-			entities[username] = new playerObj(username, picUrl);
-			player = entities[username];
-	    //if (addr == "127.0.0.1"){ player.speed =  300; }
-			entityTypes.player[username] = null;
-			playerInfo[username] = {bulletNo: 0, lastUpdated: process.hrtime()};
-			io.emit('player joined', player);
-			socket.emit('welcome', entities, username, playerObj.toString(false), Bullet.toString(false));
-		});
-
-		socket.on('disconnect', function(){
-			console.log('user: ' + addr + ' disconnected');
-
-			// Cancel any collisions they are potentially involved in
-			cancelCollisions(username);
-
-			delete entities[username];
-			delete entityTypes.player[username];
-			delete playerInfo[username];
-			io.emit('player left', username);
-		});
-
-		socket.on('chat message', function(msg){
-			io.emit('chat message', msg);
-		});
+		socket.on('disconnect', () => leave(user));
 
 		socket.on('move left', function(){
 			cancelCollisions(username);
@@ -361,7 +350,16 @@ module.exports = function(app, io){
 	        playerInfo[entityKey] = {lastUpdated: process.hrtime()};
 		});
 
-	});
+		// Initiate player and announce new player has joined to current participants
+		entities[username] = new playerObj(username);
+		player = entities[username];
+		//if (addr == "127.0.0.1"){ player.speed =  300; }
+		entityTypes.player[username] = null;
+		playerInfo[username] = {bulletNo: 0, lastUpdated: process.hrtime()};
+		io.emit('player joined', player);
+		socket.emit('START_GAME', entities, username, playerObj.toString(false), Bullet.toString(false));
+
+	};
 
 	//memory leak test
 	/*setInterval(() => {
@@ -377,4 +375,7 @@ module.exports = function(app, io){
 			updateEntity(bulletKey);
 		});
 	}, 30000);
+
+	console.log('NodeShooter instance set up');
+	return {join, leave};
 }
