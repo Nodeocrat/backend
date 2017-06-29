@@ -197,19 +197,23 @@ module.exports = function(io, options){
 	const onPlayersLeave = callback => {
 		onPlayersLeaveHandler = callback;
 	};
-	const leave = user => {
+
+	const leave = (user, disconnectHandler) => {
 		const username = user.username;
 		const socket = user.socket;
+
 		console.log(`${username} left`);
+		if(disconnectHandler)
+			socket.removeListener('disconnect', disconnectHandler);
 
-		// Cancel any collisions they are potentially involved in
-		cancelCollisions(username);
-
+		if(!entities[username])
+			return;
 		delete entities[username];
 		delete entityTypes.player[username];
 		delete playerInfo[username];
+		// Cancel any collisions they are potentially involved in
+		cancelCollisions(username);
 
-		socket.removeListener('disconnect', leave);
 		socket.removeAllListeners('move left');
 		socket.removeAllListeners('move right');
 		socket.removeAllListeners('move up');
@@ -232,7 +236,9 @@ module.exports = function(io, options){
 
 		var player;
 
-		socket.on('disconnect', () => leave(user));
+		socket.on('disconnect', function disconnectHandler(){
+			leave(user, disconnectHandler);
+		});
 
 		socket.on('move left', function(){
 			cancelCollisions(username);
