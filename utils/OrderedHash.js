@@ -1,21 +1,23 @@
 module.exports = class OrderedHash {
   constructor(options){
     // deserialize from JSON
-    this._data = [];
-    this._map = {};
+    this._data = new Map();
 
     if(options){
       if(options.JSON){
-        this._data = JSON.parse(options.JSON._data);
-        this._map = JSON.parse(options.JSON._map);
-      } else if (options.clone){
-        for(let valToClone of options.clone._data){
-          if(valToClone !== null && typeof valToClone === 'object')
-            this._data.push(Object.assign({}, valToClone));
-          else
-            this._data.push(valToClone);
+        const inflatedData = JSON.parse(options.JSON._data);
+        try {
+          this._data = new Map(inflatedData);
+        } catch(e){
+          throw e;
         }
-        this._map = Object.assign({}, options.clone._map);
+      } else if (options.clone){
+        for(let [key, value] of options.clone._data){
+          if(value !== null && typeof value === 'object')
+            this.insert(key, Object.assign({}, value));
+          else
+            this.insert(key, value);
+        }
       }
 
       if(options.init){
@@ -40,50 +42,47 @@ module.exports = class OrderedHash {
 
   toJSON(){
     return {
-      "_map": JSON.stringify(this._map),
-      "_data": JSON.stringify(this._data)
+      "_data": JSON.stringify([...this._data])
     };
   }
 
   [Symbol.iterator]() {
-    let index = -1;
+    /*let index = -1;
     const data  = this._data;
 
     return {
       next: () => ({ value: data[++index], done: !(index in data) })
-    };
+    };*/
+    return this._data.values();
   }
 
   map(callback){
-    return this._data.map(callback);
+    return [...this._data.values()].map(callback);
   }
 
   insert(key, value){
-    if(!this._map.hasOwnProperty(key)){
-      this._map[key] = this._data.push(value) - 1;
-    } else {
-      const index = this._map[key];
-      this._data[index] = value;
-    }
+    return this._data.set(key, value);
   }
 
   //array must be an array of objects and keyField is the property of the objects
   //to use as the key.
-  insertMany(array, keyField){
-    for(let value of array)
+  insertMany(iterable, keyField){
+    for(let value of iterable)
       this.insert(value[keyField], value);
   }
 
   remove(key){
-    const i = this._map[key];
-    if(i !== -1)
-      this._data.splice(i, 1);
-
-    delete this._map[key];
+    this._data.delete(key);
   }
 
   get(key){
-    const index = this._map[key];
-    return this._data[index];
+    return this._data.get(key);
+  }
+
+  //TEST
+  print(msg){
+    console.log(msg);
+    console.log(`_data: ${JSON.stringify(this._data)}`);
+    console.log(`_map: ${JSON.stringify(this._map)}`);
   }
 }

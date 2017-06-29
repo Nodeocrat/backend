@@ -1,4 +1,4 @@
-module.exports = function(io/*, socket, room*/){
+module.exports = function(io, options){
 
 	var playerObj = require('./EntityModel/Player');
 	var Bullet = require('./EntityModel/Bullet');
@@ -193,6 +193,10 @@ module.exports = function(io/*, socket, room*/){
 	}
 
 	//**********************************************
+	let onPlayersLeaveHandler = null;
+	const onPlayersLeave = callback => {
+		onPlayersLeaveHandler = callback;
+	};
 	const leave = user => {
 		const username = user.username;
 		const socket = user.socket;
@@ -205,18 +209,20 @@ module.exports = function(io/*, socket, room*/){
 		delete entityTypes.player[username];
 		delete playerInfo[username];
 
-		socket.off('disconnect', leave);
-		socket.off('move left');
-		socket.off('move right');
-		socket.off('move up');
-		socket.off('move down');
-		socket.off('stop move left');
-		socket.off('stop move right');
-		socket.off('stop move up');
-		socket.off('stop move down');
-		socket.off('player shot');
+		socket.removeListener('disconnect', leave);
+		socket.removeAllListeners('move left');
+		socket.removeAllListeners('move right');
+		socket.removeAllListeners('move up');
+		socket.removeAllListeners('move down');
+		socket.removeAllListeners('stop move left');
+		socket.removeAllListeners('stop move right');
+		socket.removeAllListeners('stop move up');
+		socket.removeAllListeners('stop move down');
+		socket.removeAllListeners('player shot');
 
 		io.emit('player left', username);
+		if(onPlayersLeaveHandler)
+			onPlayersLeaveHandler([username]);
 	}
 	const join = function(user){
 		const socket = user.socket;
@@ -377,5 +383,5 @@ module.exports = function(io/*, socket, room*/){
 	}, 30000);
 
 	console.log('NodeShooter instance set up');
-	return {join, leave};
+	return {join, leave, onPlayersLeave, name: options.name};
 }

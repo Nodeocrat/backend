@@ -10,20 +10,35 @@ module.exports = function(app, io){
 
   // {username, picUrl}
   const lobbyPlayers = new OrderedHash();
-  const NodeShooterInstance = require(API_ROOT + '/shooty-balls/shooty-balls-app.js')(io);
+  const gameList = new OrderedHash({init: {'testgame': {name: "Test Game", id: "testgame", players: 0}}});
+  const NodeShooterInstance = require(API_ROOT + '/shooty-balls/shooty-balls-app.js')(io, {name: "Test Game"});
+  NodeShooterInstance.onPlayersLeave(usernames => {
+    const gameLeft = gameList.get('testgame');
+    gameLeft.players--;
+    io.emit(EventTypes.UPDATE_GAME, gameLeft);
+  });
 
-  const joinLobby = function(socket, user){
-    lobbyPlayers.insert(user.username, user);
-    socket.emit(EventTypes.INIT_LOBBY, lobbyPlayers.toJSON());
-    io.emit(EventTypes.PLAYERS_JOINED, [user]);
-  };
+  const clientUserFormat = user => ({username: user.username, picUrl: user.displayPicture.value, status: 'ONLINE'});
 
-  app.post('/socialapp/joingame', function(req, res){
+  app.post('/socialapp/joingame', (req, res) => {
     //if(!req.body)
       //res.status(500).end();
 
     //TODO Validation checks that we are allowed to join game
+    const gameJoined = gameList.get('testgame');
+    gameJoined.players++;
     res.json({result: 'success'});
+    const player = lobbyPlayers.get(req.user.username);
+    player.status = 'IN_GAME';
+    console.log(`Player joined: ${JSON.stringify(player)}`);
+    io.emit(EventTypes.PLAYER_JOINED_GAME, [player], gameJoined);
+  });
+
+  app.post('/socialapp/lobby/join', (req, res) => {
+    const clientUser = clientUserFormat(req.user);
+    lobbyPlayers.insert(clientUser.username, clientUser);
+    res.json({result: 'success', gameList: gameList.toJSON(), players: lobbyPlayers.toJSON()});
+    io.emit(EventTypes.PLAYERS_JOINED, [clientUser]);
   });
 
   io.on('connection', function(socket){
@@ -35,9 +50,6 @@ module.exports = function(app, io){
 		const addr = socket.request.connection.remoteAddress;
     const username = user.username;
 		console.log(`[INFO] ${username} opened new websocket session from ${addr}.`);
-
-    const basicUser = {username: username, picUrl: user.displayPicture.value, status: 'online'};
-    joinLobby(socket, basicUser);
 
 		// TODO make sure that username not already in use
 		socket.on(EventTypes.SEND_MESSAGE, msg => {
@@ -54,26 +66,17 @@ module.exports = function(app, io){
       io.emit(EventTypes.CHAT_MESSAGE_RECEIVED, message);
     });
 
-    socket.on(EventTypes.JOIN_GAME, info => {
-      // GameList.get(info.id).join(socket);
-
-      // Run some validation checks
-      socket.emit(EventTypes.JOIN_GAME_SUCCESS, {msg: "Hello from server"});
-    });
-
     socket.on(EventTypes.INIT_FINISH, () => {
       NodeShooterInstance.join({socket, username});
     });
 
     socket.on(EventTypes.LEAVE_GAME, () => {
       NodeShooterInstance.leave({socket, username});
-      joinLobby(socket, basicUser);
     });
 
     socket.on(EventTypes.DISCONNECT, () => {
       lobbyPlayers.remove(username);
-
-      console.log(`[INFO] ${username} disconnected.`);
+      console.log(`[INFO] ${username} left the lobby.`);
       io.emit(EventTypes.PLAYERS_LEFT, [username]);
     });
   });
