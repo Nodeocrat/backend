@@ -1,5 +1,6 @@
-const API_ROOT = require('../../config').API_ROOT;
-
+const config = require('../../config.js');
+const API_ROOT = config.API_ROOT;
+const UTILS = config.UTILS;
 const express = require('express');
 const User = require(API_ROOT + '/models/user.js');
 const passport = require('passport');
@@ -49,15 +50,41 @@ module.exports = function() {
         });
       })(req, res, next);
     }
-    // old/regular way...
-    /*passport.authenticate('local'),
+  );
+
+  router.post(
+    '/guest',
     function(req, res, next){
 
-      if(req.body.redirect === false)
-        return res.json({'login': 'success'});
+      const randomStr = require(UTILS + '/random-string.js')(6);
+      const username = `Guest#${randomStr}`;
+      const email = `${username}@nodeocrat.com`;
+      const password = 'password';
 
-      return res.redirect('/');
-    }*/
+      req.body = {username, password};
+
+      let newUser = new User();
+      newUser['username'] = username;
+      newUser['email'] = email;
+      newUser['password'] = password;
+      User.create(newUser, function(err, user){
+        if(err)
+          return res.status(status.BAD_REQUEST).end();
+
+        passport.authenticate('local', function(err, user, info) {
+          if (err) { return next(err); }
+          if (!user)
+            return res.json({"errors": [`Error while attempting to log in as guest: ${info.msg}`]});
+
+          req.logIn(user, function(err) {
+            if (err)
+              return next(err);
+
+            return res.json({'user': User.formatForClient(user)});
+          });
+        })(req, res, next);
+      });
+    }
   );
 
   return router;
