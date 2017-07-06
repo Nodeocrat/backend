@@ -10,6 +10,11 @@ module.exports = class Lobby extends Room {
     this._gameList = gameList;
   }
 
+  //Lobby needs to communicate with other rooms
+  emit(event, ...args){
+    this._emit(event, ...args);
+  }
+
   _initPlayer(player){
     this._addListener(player, EventTypes.SEND_MESSAGE, msg => {
       const randomStr = require(UTILS + '/random-string.js')();
@@ -21,12 +26,12 @@ module.exports = class Lobby extends Room {
         id: `${player.username}|${randomStr}`,
         text: msg
       };
-      this.emit(EventTypes.CHAT_MESSAGE_RECEIVED, message);
+      this._emit(EventTypes.CHAT_MESSAGE_RECEIVED, message);
     });
 
     const gameListData = [];
     for(let [id, game] of this._gameList)
-      gameListData.push([id, game.info]);
+      gameListData.push([id, game.stats]);
     const playerData = [];
     for(let [username, player] of this._serverPlayers)
       playerData.push([username, player.publicProfile]);

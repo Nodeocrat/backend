@@ -2,6 +2,14 @@ const UTILS = require('../../config.js').UTILS;
 const randomStr = require(UTILS + '/random-string.js');
 const EventTypes = require('../event-types.js');
 
+/* Overridable:
+----------------
+_onPlayerAccepted
+_onPlayerLeave
+_initPlayer
+_canJoin
+*/
+
 module.exports = class Room {
   constructor(io, ops = {}){
     this._io = io;
@@ -11,7 +19,7 @@ module.exports = class Room {
     //bindings
     this.join = this.join.bind(this);
     this.leave = this.leave.bind(this);
-    this.emit = this.emit.bind(this);
+    this._emit = this._emit.bind(this);
   }
 
   get roomId(){
@@ -36,34 +44,33 @@ module.exports = class Room {
 
   }
 
-  emit(event, ...args){
-    console.log(`emitting ${this.roomId}${event}`);
-    this._io.to(this.roomId).emit(`${this.roomId}${event}`, ...args);
-  }
-
   join(player){
-    const result = this.canJoin(player);
+    const result = this._canJoin(player);
     if(result.success){
-      this.players.set(player.username, {player, listeners: new Map()});
-      this._addListener(player, 'CLIENT_INITIALIZED', () => {
-        this._initPlayer(player);
-      });
-      this._addListener(player, 'EXIT', () => {
-        console.log(`${player.username} leaving lobby`);
-        this.leave(player);
-      });
-      player.addRoom(this);
+      this._onPlayerAccepted(player);
     }
     return result;
   }
-
-  /*Override*/
-  canJoin(player){return {success: true};}
 
   leave(player){
     if(!this.hasPlayer(player))
       return console.log('room.js leave() error: Player not found');
 
+    this._onPlayerLeave(player);
+  }
+
+  //Optional override in subclass. If overidden, must call super.
+  _onPlayerAccepted(player){
+    this.players.set(player.username, {player, listeners: new Map()});
+    this._addListener(player, 'CLIENT_INITIALIZED', () => {
+      this._initPlayer(player);
+    });
+    this._addListener(player, 'EXIT', () => this.leave(player));
+    player.addRoom(this);
+  };
+
+  //Optional override in subclass. If overidden, must call super.
+  _onPlayerLeave(player){
     console.log(`player ${player.username} leaving`);
     const listeners = this.players.get(player.username).listeners;
     for(let [event, listener] of listeners)
@@ -71,7 +78,24 @@ module.exports = class Room {
     this.players.delete(player.username);
     player.removeRoom(this);
     player.socket.leave(this.roomId);
-    this.emit(EventTypes.PLAYERS_LEFT, player.username);
+  }
+
+  /* Optional override in subclass. If overidden, must call super.
+     When initPlayer is called, the following assumptions can be made:
+     1. The client has been successfully *allowed* to join the room
+     2. The client is ready and initialized (listeners etc)
+  */
+  _initPlayer(player){
+    player.socket.join(this.roomId);
+    this._emit(EventTypes.PLAYER_JOINED, player.publicProfile);
+  }
+
+  //Optional override in subclass. Do not call super.
+  _canJoin(player){return {success: true};}
+
+  _emit(event, ...args){
+    console.log(`emitting ${this.roomId}${event}`);
+    this._io.to(this.roomId).emit(`${this.roomId}${event}`, ...args);
   }
 
   _addListener(player, event, listener){
@@ -81,14 +105,5 @@ module.exports = class Room {
     console.log(`registering listener ${this.roomId}${event}`);
     this.players.get(player.username).listeners.set(`${this.roomId}${event}`, listener);
     player.socket.on(`${this.roomId}${event}`, listener);
-  }
-
-  /* When initPlayer is called, the following assumptions can be made:
-     1. The client has been successfully *allowed* to join the room
-     2. The client is ready and initialized (listeners etc)
-  */
-  _initPlayer(player){/*implement in sub class*/
-    player.socket.join(this.roomId);
-    this.emit(EventTypes.PLAYERS_JOINED, [player.publicProfile]);
   }
 }

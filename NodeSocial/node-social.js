@@ -4,39 +4,37 @@ const API_ROOT = config.API_ROOT;
 const UTILS = config.UTILS;
 const Player = require('./utils/Player.js');
 const Lobby = require('./Lobby');
+const NodeShooter = require('./NodeShooter');
 
 module.exports = function(app, io){
 
   const players = new Map();
-  const gameList = new Map([['testgame', {info: {name: "Test Game", id: "testgame", playerCount: 0}}]]);
+  const gameList = new Map();
   const lobby = new Lobby(io, {roomId: '!lobby!'}, players, gameList);
 
-
-  const NodeShooterInstance = require(API_ROOT + '/shooty-balls/shooty-balls-app.js')(io, {name: "Test Game"});
-  NodeShooterInstance.onPlayersLeave(usernames => {
-    const gameLeft = gameList.get('testgame');
-    if(gameLeft)
-      gameLeft.info.players--;
-    else
-      return;
-    lobby.emit(EventTypes.UPDATE_GAME, gameLeft.info);
+  const nodeShooterInstance = new NodeShooter(io, {name: "Test Game", author: "Server"});
+  nodeShooterInstance.onPlayerLeave((player, updatedGameStats) => {
+    lobby.emit(EventTypes.UPDATE_GAME, updatedGameStats);
   });
+  nodeShooterInstance.onPlayerJoin((player, updatedGameStats) => {
+    lobby.emit(EventTypes.PLAYER_JOINED_GAME, player.publicProfile, updatedGameStats);
+  });
+  gameList.set(nodeShooterInstance.roomId, nodeShooterInstance);
   //TODO on players join and onEnd...
 
   app.post('/socialapp/joingame', (req, res) => {
     if(!req.body || !req.body.id)
       return res.status(500).end();
 
-    console.log('joingame post...');
-    //TODO Validation checks that we are allowed to join game
-    const gameJoined = gameList.get(req.body.id);
-    gameJoined.info.players++;
-    res.json({success: true});
-    const player = players.get(req.user.username);
-    player.status = 'IN_GAME';
-    if(player.in(lobby))
-      lobby.leave(player);
-    lobby.emit(EventTypes.PLAYER_JOINED_GAME, [player.publicProfile], gameJoined.info);
+    const gameInstance = gameList.get(req.body.id);
+    const joiningPlayer = players.get(req.user.username);
+    if(!joiningPlayer || !gameInstance)
+      return;
+    if(joiningPlayer.in(lobby))
+      lobby.leave(joiningPlayer);
+    joiningPlayer.status = 'IN_GAME';
+    const result = gameInstance.join(joiningPlayer);
+    res.json(result);
   });
 
   app.post('/socialapp/lobby/join', (req, res) => {
@@ -45,8 +43,7 @@ module.exports = function(app, io){
       return;
     joiningPlayer.status = 'ONLINE';
     const result = lobby.join(joiningPlayer);
-    res.json({result});
-
+    res.json(result);
   });
 
   io.on('connection', function(socket){
@@ -61,16 +58,9 @@ module.exports = function(app, io){
 
 		// TODO make sure that username not already in use
 
-    socket.on(EventTypes.INIT_FINISH, () => {
-      NodeShooterInstance.join({socket, username: thisPlayer.username});
-    });
-
-    socket.on(EventTypes.LEAVE_GAME, () => {
-      NodeShooterInstance.leave({socket, username: thisPlayer.username});
-    });
-
     socket.on(EventTypes.DISCONNECT, () => {
       thisPlayer.leaveAllRooms();
+      lobby.emit(EventTypes.PLAYER_LEFT, thisPlayer.publicProfile);
       players.delete(thisPlayer.username);
       console.log(`[INFO] ${thisPlayer.username} Disconnected.`);
     });
