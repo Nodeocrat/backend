@@ -4,29 +4,17 @@ const API_ROOT = config.API_ROOT;
 const UTILS = config.UTILS;
 const Player = require('./utils/Player.js');
 const Lobby = require('./Lobby');
-const NodeShooter = require('./NodeShooter');
 
 module.exports = function(app, io){
 
   const players = new Map();
-  const gameList = new Map();
-  const lobby = new Lobby(io, {roomId: '!lobby!'}, players, gameList);
-
-  const nodeShooterInstance = new NodeShooter(io, {name: "Test Game", author: "Server"});
-  nodeShooterInstance.onPlayerLeave((player, updatedGameStats) => {
-    lobby.emit(EventTypes.UPDATE_GAME, updatedGameStats);
-  });
-  nodeShooterInstance.onPlayerJoin((player, updatedGameStats) => {
-    lobby.emit(EventTypes.PLAYER_JOINED_GAME, player.publicProfile, updatedGameStats);
-  });
-  gameList.set(nodeShooterInstance.roomId, nodeShooterInstance);
-  //TODO on players join and onEnd...
+  const lobby = new Lobby(io, {roomId: '!lobby!'}, players);
 
   app.post('/socialapp/joingame', (req, res) => {
     if(!req.body || !req.body.id)
       return res.status(500).end();
 
-    const gameInstance = gameList.get(req.body.id);
+    const gameInstance = lobby.getGame(req.body.id);
     const joiningPlayer = players.get(req.user.username);
     if(!joiningPlayer || !gameInstance)
       return;

@@ -90,10 +90,10 @@ module.exports = function(io, roomId){
 		if(dx1 == 0 && dx2 == 0 && dy1 == 0 && dy2 == 0)
 			return;
 
-		var A = (dx1-dx2)*(dx1-dx2) + (dy1-dy2)*(dy1-dy2);
+		var A = (dx1-dx2)**2 + (dy1-dy2)**2;
 		var B = 2*(dx1-dx2)*(x1-x2) + 2*(dy1-dy2)*(y1-y2);
-		var C = (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) - r*r;
-		var det = B*B - 4*A*C
+		var C = (x1-x2)**2 + (y1-y2)**2 - r**2;
+		var det = B**2 - 4*A*C
 		if(det < 0)
 			return;
 

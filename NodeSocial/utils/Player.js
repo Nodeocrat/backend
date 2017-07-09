@@ -1,7 +1,7 @@
 module.exports = class Player {
   constructor(user, socket, ops = {}){
     this._socket = socket;
-    this._ip = socket.request.connection.remoteAddress;
+    this._ip = socket.request.headers['x-real-ip'];
     this._username = user.username;
     this._picUrl = user.displayPicture.value;
     this._status = ops.status || 'OFFLINE';

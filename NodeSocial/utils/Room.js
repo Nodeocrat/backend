@@ -71,7 +71,7 @@ module.exports = class Room {
 
   //Optional override in subclass. If overidden, must call super.
   _onPlayerLeave(player){
-    console.log(`player ${player.username} leaving`);
+    //console.log(`player ${player.username} leaving`);
     const listeners = this.players.get(player.username).listeners;
     for(let [event, listener] of listeners)
       player.socket.removeListener(event, listener);
@@ -94,7 +94,7 @@ module.exports = class Room {
   _canJoin(player){return {success: true};}
 
   _emit(event, ...args){
-    console.log(`emitting ${this.roomId}${event}`);
+    //console.log(`emitting ${this.roomId}${event}`);
     this._io.to(this.roomId).emit(`${this.roomId}${event}`, ...args);
   }
 
@@ -102,7 +102,7 @@ module.exports = class Room {
     if(!this.hasPlayer(player))
       return console.log('room.js addListener error: Player not found');
 
-    console.log(`registering listener ${this.roomId}${event}`);
+    //console.log(`registering listener ${this.roomId}${event}`);
     this.players.get(player.username).listeners.set(`${this.roomId}${event}`, listener);
     player.socket.on(`${this.roomId}${event}`, listener);
   }
