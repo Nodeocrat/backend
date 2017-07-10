@@ -3,6 +3,8 @@ const EventTypes = require('../event-types.js');
 const UTILS = require('../../config').UTILS;
 const NodeShooter = require('../NodeShooter');
 
+const MAX_GAMES = 3;
+
 module.exports = class Lobby extends Room {
   constructor(io, ops, serverPlayers, gameList){
     super(io, ops);
@@ -31,6 +33,9 @@ module.exports = class Lobby extends Room {
     nodeShooterInstance.onPlayerJoin((player, updatedGameStats) => {
       this._emit(EventTypes.PLAYER_JOINED_GAME, player.publicProfile, updatedGameStats);
     });
+    nodeShooterInstance.onEnd(() => {
+      //TODO
+    });
     this._gameList.set(nodeShooterInstance.roomId, nodeShooterInstance);
     return nodeShooterInstance;
   }
@@ -49,12 +54,21 @@ module.exports = class Lobby extends Room {
       this._emit(EventTypes.CHAT_MESSAGE_RECEIVED, message);
     });
 
-    this._addListener(player, EventTypes.CREATE_GAME, res => {
+    this._addListener(player, EventTypes.CREATE_GAME, (data, res) => {
 
-      //TODO: validation
-      console.log(`Creating game ${res.options.name || "Untitled"} by ${player.username}`);
-      const newGame = this.setupGame(res.options);
+      //validation
+      if(this._gameList.size >= MAX_GAMES)
+        return res({error: "Cannot create anymore games. Server limit reached."});
+
+      console.log(`Creating game ${data.options.name || "Untitled"} by ${player.username}`);
+      if (data.options){ // Set server options
+        data.options.author = player.username;
+        data.options.timer = 300;
+      }
+
+      const newGame = this.setupGame(data.options);
       this._emit(EventTypes.ADD_GAME, newGame.stats);
+      res({success: true});
     });
 
     const gameListData = [];

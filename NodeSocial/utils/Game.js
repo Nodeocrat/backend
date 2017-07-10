@@ -15,7 +15,9 @@ module.exports = class Game extends Room {
       name = `${ops.author}'s Game`;
 
     this._name = name;
+    this._author = ops.author;
     this._playerCount = 0;
+    this._timer = ops.timer;
 
     //It is only expected for the lobby to need to listen to these events for now
     //hence the decision for only a single allowed listener to prevent accidental memory leak
