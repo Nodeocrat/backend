@@ -57,7 +57,7 @@ module.exports = class Game extends Room {
 
   _onPlayerLeave(player){
     super._onPlayerLeave(player);
-    this._playerCount--;
+    this._playerCount = this.players.size;
     this._onPlayerLeaveListener(player, this.stats);
   }
 
@@ -67,7 +67,7 @@ module.exports = class Game extends Room {
 
   _onPlayerAccepted(player){
     super._onPlayerAccepted(player);
-    this._playerCount++;
+    this._playerCount = this.players.size;
     this._onPlayerJoinListener(player, this.stats);
   }
 }

@@ -93,7 +93,7 @@ module.exports = function(io, roomId){
 		var A = (dx1-dx2)**2 + (dy1-dy2)**2;
 		var B = 2*(dx1-dx2)*(x1-x2) + 2*(dy1-dy2)*(y1-y2);
 		var C = (x1-x2)**2 + (y1-y2)**2 - r**2;
-		var det = B**2 - 4*A*C
+		var det = B**2 - 4*A*C;
 		if(det < 0)
 			return;
 
@@ -373,8 +373,10 @@ module.exports = function(io, roomId){
 		Object.keys(entityTypes.bullet).forEach((bulletKey) => {
 			updateEntity(bulletKey);
 		});
-	}, 30000);
+	}, 10000);
 
 	console.log(`NodeShooter instance ${roomId} started`);
+
+	// External API
 	return {join, leave};
 }
