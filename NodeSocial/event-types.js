@@ -9,6 +9,7 @@ module.exports = {
   PLAYER_LEFT_GAME: 'PLAYER_LEFT_GAME',
   UPDATE_GAME: 'UPDATE_GAME',
   ADD_GAME: 'ADD_GAME',
+  GAME_ENDED: 'GAME_ENDED',
 
   //Fired by user
   JOIN_GAME: 'JOIN_GAME',

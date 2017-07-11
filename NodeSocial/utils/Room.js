@@ -13,6 +13,8 @@ _canJoin
 module.exports = class Room {
   constructor(io, ops = {}){
     this._io = io;
+
+    console.log('_players init');
     this._players = new Map();
     this._roomId = ops.roomId || randomStr();
 
@@ -20,6 +22,7 @@ module.exports = class Room {
     this.join = this.join.bind(this);
     this.leave = this.leave.bind(this);
     this._emit = this._emit.bind(this);
+    this._bootAllPlayers = this._bootAllPlayers.bind(this);
   }
 
   get roomId(){
@@ -78,6 +81,11 @@ module.exports = class Room {
     this.players.delete(player.username);
     player.removeRoom(this);
     player.socket.leave(this.roomId);
+  }
+
+  _bootAllPlayers(){
+    for(let [username, playerInfo] of this._players)
+      this.leave(playerInfo.player);
   }
 
   /* Optional override in subclass. If overidden, must call super.

@@ -3,7 +3,7 @@ const EventTypes = require('../event-types.js');
 const UTILS = require('../../config').UTILS;
 const NodeShooter = require('../NodeShooter');
 
-const MAX_GAMES = 3;
+const MAX_GAMES = 5;
 
 module.exports = class Lobby extends Room {
   constructor(io, ops, serverPlayers, gameList){
@@ -34,7 +34,8 @@ module.exports = class Lobby extends Room {
       this._emit(EventTypes.PLAYER_JOINED_GAME, player.publicProfile, updatedGameStats);
     });
     nodeShooterInstance.onEnd(() => {
-      //TODO
+      this._gameList.delete(nodeShooterInstance.roomId);
+      this._emit(EventTypes.GAME_ENDED, nodeShooterInstance.stats);
     });
     this._gameList.set(nodeShooterInstance.roomId, nodeShooterInstance);
     return nodeShooterInstance;
