@@ -1,4 +1,4 @@
-module.exports = function(io, roomId){
+module.exports = function(room){
 
 	var playerObj = require('./EntityModel/Player');
 	var Bullet = require('./EntityModel/Bullet');
@@ -53,7 +53,7 @@ module.exports = function(io, roomId){
 			delete entityTypes.bullet[destEntityKey];
 			delete playerInfo[destEntityKey];
 		}
-		io.to(roomId).emit(`collision`, causeEntityKey, destEntityKey);
+		room.broadcast('collision', {entityKey:causeEntityKey, destKey:destEntityKey});
 	};
 
 	var checkForCollisions = function(causeEntityKey, causeEntity, entitiesToSkipCheck){
@@ -193,9 +193,9 @@ module.exports = function(io, roomId){
 	}
 
 	//**********************************************
-	const leave = user => {
-		const username = user.username;
-		const socket = user.socket;
+	const leave = client => {
+		const username = client.username;
+		const socket = client.socket;
 
 		console.log(`${username} left`);
 
@@ -207,22 +207,12 @@ module.exports = function(io, roomId){
 		// Cancel any collisions they are potentially involved in
 		cancelCollisions(username);
 
-		socket.removeAllListeners('move left');
-		socket.removeAllListeners('move right');
-		socket.removeAllListeners('move up');
-		socket.removeAllListeners('move down');
-		socket.removeAllListeners('stop move left');
-		socket.removeAllListeners('stop move right');
-		socket.removeAllListeners('stop move up');
-		socket.removeAllListeners('stop move down');
-		socket.removeAllListeners('player shot');
-
-		io.to(roomId).emit('player left', username);
+		room.broadcast('player left', username);
 	}
-	const join = function(user){
-		const socket = user.socket;
-		var username = user.username;
-		var addr = socket.request.connection.remoteAddress;
+	const join = function(client){
+		const socket = client.socket;
+		var username = client.username;
+		var addr = client.ip;
 		console.log(`${username} joined game`);
 
 		var player;
@@ -242,7 +232,7 @@ module.exports = function(io, roomId){
 			}
 
 			checkForCollisions(username, player, {});
-			io.to(roomId).emit('move left', username);
+			room.broadcast('move left', username);
 		});
 		socket.on('stop move left', function(){
 			cancelCollisions(username);
@@ -251,7 +241,7 @@ module.exports = function(io, roomId){
 				player.dy = (player.speed)*( (player.dy) / Math.abs(player.dy) );
 			player.dx = 0;
 			checkForCollisions(username, player, {});
-			io.to(roomId).emit('stop move left', username, player.x, player.y);
+			room.broadcast('stop move left', {playerId:username, atX:player.x, atY:player.y});
 		});
 		socket.on('move right', function(){
 			cancelCollisions(username);
@@ -268,7 +258,7 @@ module.exports = function(io, roomId){
 			}
 
 			checkForCollisions(username, player, {});
-			io.to(roomId).emit('move right', username);
+			room.broadcast('move right', username);
 		});
 		socket.on('stop move right', function(){
 			cancelCollisions(username);
@@ -277,7 +267,7 @@ module.exports = function(io, roomId){
 				player.dy = (player.speed)*( (player.dy) / Math.abs(player.dy) );
 			player.dx = 0;
 			checkForCollisions(username, player, {});
-			io.to(roomId).emit('stop move right', username, player.x, player.y);
+			room.broadcast('stop move right', {playerId:username, atX:player.x, atY:player.y});
 		});
 		socket.on('move up', function(){
 			cancelCollisions(username);
@@ -294,7 +284,7 @@ module.exports = function(io, roomId){
 			}
 
 			checkForCollisions(username, player, {});
-			io.to(roomId).emit('move up', username);
+			room.broadcast('move up', username);
 		});
 		socket.on('stop move up', function(){
 			cancelCollisions(username);
@@ -303,7 +293,7 @@ module.exports = function(io, roomId){
 				player.dx = (player.speed)*( (player.dx) / Math.abs(player.dx) );
 			player.dy = 0;
 			checkForCollisions(username, player, {});
-			io.to(roomId).emit('stop move up', username, player.x, player.y);
+			room.broadcast('stop move up', {playerId:username, atX:player.x, atY:player.y});
 		});
 		socket.on('move down', function(){
 			cancelCollisions(username);
@@ -320,7 +310,7 @@ module.exports = function(io, roomId){
 			}
 
 			checkForCollisions(username, player, {});
-			io.to(roomId).emit('move down', username);
+			room.broadcast('move down', username);
 		});
 		socket.on('stop move down', function(){
 			cancelCollisions(username);
@@ -329,13 +319,20 @@ module.exports = function(io, roomId){
 				player.dx = (player.speed)*( (player.dx) / Math.abs(player.dx) );
 			player.dy = 0;
 			checkForCollisions(username, player, {});
-			io.to(roomId).emit('stop move down', username, player.x, player.y);
+			room.broadcast('stop move down', {playerId:username, atX:player.x, atY:player.y});
 		});
-		socket.on('player shot', function(x, y){
+		socket.on('player shot', function({x, y}){
 			//TODO VALIDATION NEEDED!!!
 			updateEntity(username);
 			var entityKey = "bullet|" + username + "|" + playerInfo[username].bulletNo;
-			io.to(roomId).emit('player shot', entityKey, username, x, y);
+			room.broadcast('player shot',
+				{
+					bulletKey: entityKey,
+					originatorKey: username,
+					clickX: x,
+					clickY: y
+				}
+			);
 			playerInfo[username].bulletNo++;
 			var newBullet = new Bullet(player, x, y);
 
@@ -355,9 +352,8 @@ module.exports = function(io, roomId){
 		//if (addr == "127.0.0.1"){ player.speed =  300; }
 		entityTypes.player[username] = null;
 		playerInfo[username] = {bulletNo: 0, lastUpdated: process.hrtime()};
-		io.to(roomId).emit('player joined', player);
-		socket.emit(`${roomId}START`, entities, username, playerObj.toString(false), Bullet.toString(false));
-
+		room.broadcast('player joined', player);
+		room.emit(client, 'START', {entitiesOnServer: entities, myNameOnServer: username});
 	};
 
 	//memory leak test
@@ -375,7 +371,7 @@ module.exports = function(io, roomId){
 		});
 	}, 10000);
 
-	console.log(`NodeShooter instance ${roomId} started`);
+	console.log(`NodeShooter instance ${room.id} started`);
 
 	// External API
 	return {join, leave};

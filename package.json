@@ -5,7 +5,7 @@
   "scripts": {
     "test": "mocha tests",
     "start-prod": "NODE_ENV=production nohup nodejs ./index.js &>/dev/null &",
-    "start-mongod":"mongod --fork --logpath ~/log/mongodb.log"
+    "start-mongod": "mongod --fork --logpath ~/log/mongodb.log"
   },
   "dependencies": {
     "bcrypt": "^0.8.7",
@@ -24,8 +24,9 @@
     "passport-facebook": "^2.1.1",
     "passport-google-oauth": "^1.0.0",
     "passport-local": "^1.0.0",
-	  "socket.io": "~1.7.3",
-    "request": "^2.79.0"
+    "request": "^2.79.0",
+    "server-room": "git+https://github.com/Nodeocrat/server-room.git",
+    "ws": "^3.3.2"
   },
   "devDependencies": {
     "mocha": "^3.1.0",

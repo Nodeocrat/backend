@@ -4,6 +4,7 @@ const session = require('express-session');
 const helmet = require('helmet');
 const MongoStore = require('connect-mongo')(session);
 const API_ROOT = require('./config').API_ROOT;
+const WebSocket = require('ws');
 
 const port = 8080;
 const mongoUrl = 'mongodb://localhost:27017/test';
@@ -28,13 +29,11 @@ const sessionMiddleware = session({
 
 app.use(sessionMiddleware);
 const server = require('http').createServer(app);
-
-// Setup socket.io. Session middleware given so 'user' can be accessed in
-// socket.io via socket.request.user in the same way as in express via req.user
-const socketIo = require(API_ROOT + '/socket-io-setup.js')(server, sessionMiddleware);
+const WebSocketServer = WebSocket.Server;
+const wss = new WebSocketServer({server});
 
 // api setup
-require(API_ROOT + '/api')(app, socketIo);
+require(API_ROOT + '/api')(app, wss);
 
 // start server
 server.listen(port, (err) => {
