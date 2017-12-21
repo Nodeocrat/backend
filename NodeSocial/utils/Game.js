@@ -1,12 +1,12 @@
 const UTILS = require('../../config.js').UTILS;
 const randomStr = require(UTILS + '/random-string.js');
-const Room = require('./Room.js');
+const Room = require('server-room');
 
 // Base class for all games
 module.exports = class Game extends Room {
 
-  constructor(io, ops){
-    super(io, ops);
+  constructor(ops){
+    super(ops);
 
     let name = "Untitled Game";
     if(ops.name)
@@ -33,7 +33,7 @@ module.exports = class Game extends Room {
 
   get stats(){
     return {
-      id: this.roomId,
+      id: this.id,
       name: this.name,
       playerCount: this._playerCount
     };
@@ -55,19 +55,21 @@ module.exports = class Game extends Room {
     this._onEndListener = listener;
   }
 
-  _onPlayerLeave(player){
-    super._onPlayerLeave(player);
-    this._playerCount = this.players.size;
-    this._onPlayerLeaveListener(player, this.stats);
+  onClientLeave(client){
+    super.onClientLeave(client);
+    this._playerCount = this.clients.size;
+    this._onPlayerLeaveListener(client, this.stats);
   }
 
-  _initPlayer(player){
-    super._initPlayer(player);
+  onClientDisconnect(client){
+    super.onClientDisconnect(client);
+    this._playerCount = this.clients.size;
+    this._onPlayerLeaveListener(client, this.stats);
   }
 
-  _onPlayerAccepted(player){
-    super._onPlayerAccepted(player);
-    this._playerCount = this.players.size;
-    this._onPlayerJoinListener(player, this.stats);
+  onClientAccepted(client){
+    super.onClientAccepted(client);
+    this._playerCount = this.clients.size;
+    this._onPlayerJoinListener(client, this.stats);
   }
 }
