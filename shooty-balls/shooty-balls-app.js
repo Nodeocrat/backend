@@ -210,14 +210,13 @@ module.exports = function(room){
 		room.broadcast('player left', username);
 	}
 	const join = function(client){
-		const socket = client.socket;
 		var username = client.username;
 		var addr = client.ip;
 		console.log(`${username} joined game`);
 
 		var player;
 
-		socket.on('move left', function(){
+		room.addListener(client, 'move left', function(){
 			cancelCollisions(username);
 			updateEntity(username);
 
@@ -234,7 +233,7 @@ module.exports = function(room){
 			checkForCollisions(username, player, {});
 			room.broadcast('move left', username);
 		});
-		socket.on('stop move left', function(){
+		room.addListener(client, 'stop move left', function(){
 			cancelCollisions(username);
 			updateEntity(username);
 			if(player.dy != 0)
@@ -243,7 +242,7 @@ module.exports = function(room){
 			checkForCollisions(username, player, {});
 			room.broadcast('stop move left', {playerId:username, atX:player.x, atY:player.y});
 		});
-		socket.on('move right', function(){
+		room.addListener(client, 'move right', function(){
 			cancelCollisions(username);
 			updateEntity(username);
 
@@ -260,7 +259,7 @@ module.exports = function(room){
 			checkForCollisions(username, player, {});
 			room.broadcast('move right', username);
 		});
-		socket.on('stop move right', function(){
+		room.addListener(client, 'stop move right', function(){
 			cancelCollisions(username);
 			updateEntity(username);
 			if(player.dy != 0)
@@ -269,7 +268,7 @@ module.exports = function(room){
 			checkForCollisions(username, player, {});
 			room.broadcast('stop move right', {playerId:username, atX:player.x, atY:player.y});
 		});
-		socket.on('move up', function(){
+		room.addListener(client, 'move up', function(){
 			cancelCollisions(username);
 			updateEntity(username);
 
@@ -286,7 +285,7 @@ module.exports = function(room){
 			checkForCollisions(username, player, {});
 			room.broadcast('move up', username);
 		});
-		socket.on('stop move up', function(){
+		room.addListener(client, 'stop move up', function(){
 			cancelCollisions(username);
 			updateEntity(username);
 			if(player.dx != 0)
@@ -295,7 +294,7 @@ module.exports = function(room){
 			checkForCollisions(username, player, {});
 			room.broadcast('stop move up', {playerId:username, atX:player.x, atY:player.y});
 		});
-		socket.on('move down', function(){
+		room.addListener(client, 'move down', function(){
 			cancelCollisions(username);
 			updateEntity(username);
 
@@ -312,7 +311,7 @@ module.exports = function(room){
 			checkForCollisions(username, player, {});
 			room.broadcast('move down', username);
 		});
-		socket.on('stop move down', function(){
+		room.addListener(client, 'stop move down', function(){
 			cancelCollisions(username);
 			updateEntity(username);
 			if(player.dx != 0)
@@ -321,7 +320,7 @@ module.exports = function(room){
 			checkForCollisions(username, player, {});
 			room.broadcast('stop move down', {playerId:username, atX:player.x, atY:player.y});
 		});
-		socket.on('player shot', function({x, y}){
+		room.addListener(client, 'player shot', function({x, y}){
 			//TODO VALIDATION NEEDED!!!
 			updateEntity(username);
 			var entityKey = "bullet|" + username + "|" + playerInfo[username].bulletNo;
