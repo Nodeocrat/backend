@@ -66,8 +66,9 @@ module.exports = class Lobby extends Room {
       const player = this._lobbyPlayers.get(client.id);
       if(player){
         player.status = LobbyPlayer.States.ACTIVE;
-        this.broadcast(EventTypes.UPDATE_PLAYER, player.publicProfile);
+        this.broadcast(EventTypes.UPDATE_PLAYER, player.profile);
         this.broadcast(EventTypes.UPDATE_GAME, updatedGameStats);
+        this.sendAllData(client, 'RESUME');
       } else {
         console.log(`Error: tried to remove client ${client.id} from lobby, but not found`);
       }
@@ -75,7 +76,7 @@ module.exports = class Lobby extends Room {
     nodeShooterInstance.onPlayerJoin((client, updatedGameStats) => {
       const player = this._lobbyPlayers.get(client.id);
       player.status = LobbyPlayer.States.IN_GAME;
-      this.broadcast(EventTypes.PLAYER_JOINED_GAME, {player:player.publicProfile, game:updatedGameStats});
+      this.broadcast(EventTypes.PLAYER_JOINED_GAME, {player:player.profile, game:updatedGameStats});
     });
     nodeShooterInstance.onEnd(() => {
       //TODO
@@ -120,7 +121,10 @@ module.exports = class Lobby extends Room {
 
     player.status = LobbyPlayer.States.ACTIVE;
     this.broadcast(EventTypes.PLAYER_JOINED, player.profile);
+    this.sendAllData(client, 'START');
+  }
 
+  sendAllData(client, eventType){
     const gameListData = [];
     for(let [id, game] of this._gameList)
       gameListData.push([id, game.stats]);
@@ -128,7 +132,6 @@ module.exports = class Lobby extends Room {
     for(let [username, player] of this._lobbyPlayers)
       playerData.push([username, player.profile]);
 
-    //console.log(`gameListData: ${JSON.stringify(gameListData)}\nplayerData: ${JSON.stringify(playerData)}`);
-    this.emit(client, 'START', {gameList: gameListData, players: playerData});
+    this.emit(client, eventType, {gameList: gameListData, players: playerData});
   }
 }
