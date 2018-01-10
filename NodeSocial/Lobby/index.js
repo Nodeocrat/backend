@@ -8,7 +8,7 @@ const MAX_GAMES = 3;
 
 module.exports = class Lobby extends Room {
   constructor(){
-    super();
+    super({reconnectTimeout: 10000});
 
     this._lobbyPlayers = new Map();
     this._gameList = new Map();
@@ -17,7 +17,7 @@ module.exports = class Lobby extends Room {
 
   onClientAccepted(client, userInfo){
     super.onClientAccepted(client);
-    const newLobbyPlayer = new LobbyPlayer({client, picUrl: userInfo.picUrl});
+    const newLobbyPlayer = new LobbyPlayer({client, picUrl: userInfo.picUrl, username: userInfo.id});
     this._lobbyPlayers.set(client.id, newLobbyPlayer);
   }
 
@@ -38,11 +38,8 @@ module.exports = class Lobby extends Room {
     if(!id)
       return {success: false, error: {message: 'ID not defined'}, reason: 'Error occurred'};
 
-    if(this.clients.get(id)){
-      if(!this._lobbyPlayers.get(id))
-        console.log(`ERROR! User ${id} in clients but not _lobbyPlayers`);
+    if(this._lobbyPlayers.get(id))
       return {success: false, reason: `User ${id} already in room`};
-    }
 
     return {success: true};
   }
@@ -55,9 +52,23 @@ module.exports = class Lobby extends Room {
 
   onClientDisconnect(client){
     super.onClientDisconnect(client);
-    this._lobbyPlayers.delete(client.id);
-    this.broadcast(EventTypes.PLAYER_LEFT, client.username);
-    //TODO broadcast disconnect event instead once we have a proper leave method
+    const player = this._lobbyPlayers.get(client.id);
+    if(player){
+      player.status = LobbyPlayer.States.DISCONNECTED;
+      this.broadcast(EventTypes.UPDATE_PLAYER, player.profile);
+    }
+  }
+
+  onClientReconnect(client){
+    super.onClientReconnect(client);
+    const player = this._lobbyPlayers.get(client.id);
+    if(player){
+      player.status = LobbyPlayer.States.ACTIVE;
+      this.broadcast(EventTypes.UPDATE_PLAYER, player.profile);
+    }
+    //TODO send back all messages data from the time of first initClient. (up to 100)
+    //Stuff will need sortign first with messages...
+    this.sendAllData(client, 'RESUME');
   }
 
   setupGame(options = {}){

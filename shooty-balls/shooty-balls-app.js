@@ -194,10 +194,10 @@ module.exports = function(room){
 
 	//**********************************************
 	const leave = client => {
-		const username = client.username;
+		const username = client.id;
 		const socket = client.socket;
 
-		console.log(`${username} left`);
+		console.log(`shooty-balls-app.js: ${username} left`);
 
 		if(!entities[username])
 			return;
@@ -210,9 +210,9 @@ module.exports = function(room){
 		room.broadcast('player left', username);
 	}
 	const join = function(client){
-		var username = client.username;
+		var username = client.id;
 		var addr = client.ip;
-		console.log(`${username} joined game`);
+		console.log(`shooty-balls-app: ${username} joined game`);
 
 		var player;
 

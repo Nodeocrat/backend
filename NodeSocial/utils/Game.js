@@ -57,19 +57,19 @@ module.exports = class Game extends Room {
 
   onClientLeave(client){
     super.onClientLeave(client);
-    this._playerCount = this.clients.size;
+    this._playerCount = this._clients.size;
     this._onPlayerLeaveListener(client, this.stats);
   }
 
   onClientDisconnect(client){
     super.onClientDisconnect(client);
-    this._playerCount = this.clients.size;
+    this._playerCount = this._clients.size;
     this._onPlayerLeaveListener(client, this.stats);
   }
 
   onClientAccepted(client){
     super.onClientAccepted(client);
-    this._playerCount = this.clients.size;
+    this._playerCount = this._clients.size;
     this._onPlayerJoinListener(client, this.stats);
   }
 }

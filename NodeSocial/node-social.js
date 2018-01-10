@@ -1,12 +1,8 @@
-const EventTypes = require('./event-types.js');
-const config = require('../config.js');
-const API_ROOT = config.API_ROOT;
-const UTILS = config.UTILS;
-const Player = require('./utils/Player.js');
 const Lobby = require('./Lobby');
-const ClientPool = require('server-room').ClientPool;
+const Room = require('server-room');
 
 const SID = 'connect.sid';
+const IP_HEADER = 'x-real-ip';
 
 module.exports = function(app, wsServer){
 
@@ -23,7 +19,7 @@ module.exports = function(app, wsServer){
 
     const sid = req.cookies[SID];
     const user = req.user;
-    const ip = req.headers['x-real-ip'];
+    const ip = req.headers[IP_HEADER];
     if(!user)
       return req.status(401).end(); //Unauthorized
 
@@ -37,7 +33,7 @@ module.exports = function(app, wsServer){
   app.post('/socialapp/lobby/join', (req, res) => {
     const sid = req.cookies[SID];
     const user = req.user;
-    const ip = req.headers['x-real-ip'];
+    const ip = req.headers[IP_HEADER];
     if(!user)
       return res.status(401).end(); //Unauthorized
 
@@ -51,29 +47,6 @@ module.exports = function(app, wsServer){
   });
 
   /*Websocket server*/
-  wsServer.on('connection', function(rawWs, req){
-    const sid = getCookie(req.headers.cookie, SID);
-    const client = ClientPool.getClient(sid);
-    if(!client){
-      console.log(`Refused unexpected websocket connection from ${req.headers['x-real-ip']} (sid: ${sid})`);
-      return rawWs.terminate();
-    }
-
-    client.socket = rawWs;
-		console.log(`[INFO] ${client.id} opened new websocket session from ${client.ip}.`);
-  });
-}
-
-function getCookie(cookieStr, name){
-  const decodedCookie = decodeURIComponent(cookieStr);
-  const ca = decodedCookie.split(';');
-  for(let i = 0; i <ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length+1, c.length);
-    }
-  }
+  //TODO move this into the client module; it is always going to be here.
+  Room.initialize(wsServer, {sidHeader: SID, ipHeader: IP_HEADER});
 }
