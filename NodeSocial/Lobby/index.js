@@ -47,7 +47,7 @@ module.exports = class Lobby extends Room {
   onClientLeave(client){
     super.onClientLeave(client);
     this._lobbyPlayers.delete(client.id);
-    this.broadcast(EventTypes.PLAYER_LEFT, client.username);
+    this.broadcast(EventTypes.PLAYER_LEFT, client.id);
   }
 
   onClientDisconnect(client){
@@ -76,7 +76,7 @@ module.exports = class Lobby extends Room {
     nodeShooterInstance.onPlayerLeave((client, updatedGameStats) => {
       const player = this._lobbyPlayers.get(client.id);
       if(player){
-        player.status = LobbyPlayer.States.ACTIVE;
+        player.status = this.isConnected(client) ? LobbyPlayer.States.ACTIVE : LobbyPlayer.States.DISCONNECTED;
         this.broadcast(EventTypes.UPDATE_PLAYER, player.profile);
         this.broadcast(EventTypes.UPDATE_GAME, updatedGameStats);
         this.sendAllData(client, 'RESUME');
@@ -119,11 +119,9 @@ module.exports = class Lobby extends Room {
       if(this._gameList.size >= MAX_GAMES)
         return res({error: "Cannot create anymore games. Server limit reached."});
 
-      console.log(`Creating game ${(options && options.name) || "Untitled"} by ${client.username}`);
-      if (options){ // Set server options
-        data.options.author = player.username;
-        data.options.timer = 300;
-      }
+      console.log(`Creating game ${(options && options.name) || "Untitled"} by ${client.id}`);
+      options.author = player.username;
+      options.timer = 300;
 
       const newGame = this.setupGame(options);
       this.broadcast(EventTypes.ADD_GAME, newGame.stats);
