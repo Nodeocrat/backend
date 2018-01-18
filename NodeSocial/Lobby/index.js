@@ -86,8 +86,10 @@ module.exports = class Lobby extends Room {
     });
     nodeShooterInstance.onPlayerJoin((client, updatedGameStats) => {
       const player = this._lobbyPlayers.get(client.id);
-      player.status = LobbyPlayer.States.IN_GAME;
-      this.broadcast(EventTypes.PLAYER_JOINED_GAME, {player:player.profile, game:updatedGameStats});
+      if(player){
+        player.status = LobbyPlayer.States.IN_GAME;
+        this.broadcast(EventTypes.PLAYER_JOINED_GAME, {player:player.profile, game:updatedGameStats});
+      }
     });
     nodeShooterInstance.onEnd(() => {
       //TODO
