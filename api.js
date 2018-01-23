@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const flash = require('connect-flash');
 const cookieParser = require('cookie-parser');
 
-module.exports = function(app, wsServer) {
+module.exports = function(app) {
 
   // Essentials/setup
   app.use(bodyParser.urlencoded({ extended: true }));
@@ -18,8 +18,6 @@ module.exports = function(app, wsServer) {
 
   // Account API
   app.use('/account', require(API_ROOT + '/routes/account/account.js')());
-
-  if(wsServer)
-    require(API_ROOT + '/NodeSocial/node-social.js')(app, wsServer);
+  require(API_ROOT + '/NodeSocial/node-social.js')(app);
 
 };

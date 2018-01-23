@@ -33,7 +33,8 @@ const WebSocketServer = WebSocket.Server;
 const wss = new WebSocketServer({server});
 
 // api setup
-require(API_ROOT + '/api')(app, wss);
+require('server-room').init(server);
+require(API_ROOT + '/api')(app);
 
 // start server
 server.listen(port, (err) => {
