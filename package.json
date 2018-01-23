@@ -25,8 +25,7 @@
     "passport-google-oauth": "^1.0.0",
     "passport-local": "^1.0.0",
     "request": "^2.79.0",
-    "server-room": "git+https://github.com/Nodeocrat/server-room.git",
-    "ws": "^3.3.2"
+    "server-room": "git+https://github.com/Nodeocrat/server-room.git"
   },
   "devDependencies": {
     "mocha": "^3.1.0",

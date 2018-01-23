@@ -29,12 +29,9 @@ const sessionMiddleware = session({
 
 app.use(sessionMiddleware);
 const server = require('http').createServer(app);
-const WebSocketServer = WebSocket.Server;
-const wss = new WebSocketServer({server});
 
 // api setup
-require('server-room').init(server);
-require(API_ROOT + '/api')(app);
+require(API_ROOT + '/api')(app, server);
 
 // start server
 server.listen(port, (err) => {

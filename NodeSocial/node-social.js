@@ -4,7 +4,7 @@ const Room = require('server-room');
 const SID = 'connect.sid';
 const IP_HEADER = 'x-real-ip';
 
-module.exports = function(app, wsServer){
+module.exports = function(app, server){
 
   const lobby = new Lobby();
 
@@ -48,5 +48,5 @@ module.exports = function(app, wsServer){
 
   /*Websocket server*/
   //TODO move this into the client module; it is always going to be here.
-  Room.initialize(wsServer, {sidHeader: SID, ipHeader: IP_HEADER});
+  Room.initialize(server, {sidHeader: SID, ipHeader: IP_HEADER});
 }
