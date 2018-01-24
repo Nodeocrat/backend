@@ -9,7 +9,7 @@ const WebSocket = require('ws');
 const port = 8080;
 const mongoUrl = 'mongodb://localhost:27017/test';
 
-mongoose.connect(mongoUrl);
+mongoose.connect(mongoUrl, {useMongoClient: true});
 
 const app = express();
 
