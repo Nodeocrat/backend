@@ -17,13 +17,20 @@ module.exports = class Game extends Room {
     this._name = name;
     this._author = ops.author;
     this._playerCount = 0;
-    this._timer = ops.timer;
+    this._timeCreated = new Date().getTime() / 1000;
+    if(ops.timer)
+      this._timer = ops.timer/1000;
+    else
+      this._timer = null;
 
     //It is only expected for the lobby to need to listen to these events for now
     //hence the decision for only a single allowed listener to prevent accidental memory leak
     this._onPlayerLeaveListener = () => {};
     this._onPlayerJoinListener = () => {};
     this._onEndListener = () => {};
+
+    if(typeof ops.timer === 'number' && ops.timer > 0)
+      setTimeout(() => this._onEndListener(), ops.timer);
 
   }
 
@@ -35,7 +42,9 @@ module.exports = class Game extends Room {
     return {
       id: this.id,
       name: this.name,
-      playerCount: this._playerCount
+      playerCount: this._playerCount,
+      timer: this._timer,
+      timeCreated: this._timeCreated
     };
   }
 

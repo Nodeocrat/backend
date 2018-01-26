@@ -5,6 +5,7 @@ const LobbyPlayer = require('./lobby-player.js');
 const NodeShooter = require('../NodeShooter');
 
 const MAX_GAMES = 3;
+const DEFAULT_TIME = 30000
 
 module.exports = class Lobby extends Room {
   constructor(){
@@ -92,7 +93,8 @@ module.exports = class Lobby extends Room {
       }
     });
     nodeShooterInstance.onEnd(() => {
-      //TODO
+      this._gameList.delete(nodeShooterInstance.id);
+      this.broadcast(EventTypes.GAME_ENDED, nodeShooterInstance.stats);
     });
     this._gameList.set(nodeShooterInstance.id, nodeShooterInstance);
     return nodeShooterInstance;
@@ -123,7 +125,7 @@ module.exports = class Lobby extends Room {
 
       console.log(`Creating game ${(options && options.name) || "Untitled"} by ${client.id}`);
       options.author = player.username;
-      options.timer = 300;
+      options.timer = DEFAULT_TIME;
 
       const newGame = this.setupGame(options);
       this.broadcast(EventTypes.ADD_GAME, newGame.stats);
