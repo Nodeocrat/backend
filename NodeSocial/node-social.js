@@ -25,7 +25,7 @@ module.exports = function(app, server){
 
     const username = user.username;
     console.log(`${username} (${ip}) requested to join game`);
-    const result = gameInstance.join(sid, {ip, id: username});
+    const result = gameInstance.join({sid, ip, id: username});
     result.url = '/api/';
     return res.json(result);
   });
@@ -41,7 +41,7 @@ module.exports = function(app, server){
     const picUrl = user.displayPicture.value;
     console.log(`${username} (${ip}) requested to join lobby`);
     console.log(`sid: ${sid}`);
-    const result = lobby.join(sid, {picUrl, ip, id: username});
+    const result = lobby.join({sid, picUrl, ip, id: username});
     result.url = '/api/';
     return res.json(result);
   });
