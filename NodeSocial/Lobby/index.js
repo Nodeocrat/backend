@@ -9,7 +9,7 @@ const DEFAULT_TIME = 30000
 
 module.exports = class Lobby extends Room {
   constructor(){
-    super({reconnectTimeout: 10000});
+    super({reconnectTimeout: 30000});
 
     this._lobbyPlayers = new Map();
     this._gameList = new Map();
