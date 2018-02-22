@@ -5,7 +5,7 @@ const LobbyPlayer = require('./lobby-player.js');
 const NodeShooter = require('../NodeShooter');
 
 const MAX_GAMES = 3;
-const DEFAULT_TIME = 30000
+const DEFAULT_TIME = 300000;
 
 module.exports = class Lobby extends Room {
   constructor(){
