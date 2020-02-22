@@ -1,4 +1,4 @@
-// Note: This is an old project that turned into something organically, that it was never intended for, so the code is a horrific mess.
+// Note: This is an old experiment that turned into something organically, that it was never intended for, so the code is a horrific mess.
 
 module.exports = function(room){
 
